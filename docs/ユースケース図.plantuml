@@ -1,6 +1,7 @@
 @startuml
-' プラハチャレンジ ユースケース図
+' プラハチャレンジ ユースケース図（境界づけられたコンテキスト別）
 left to right direction
+
 skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam usecase {
@@ -10,54 +11,76 @@ skinparam usecase {
 }
 
 actor 参加者 as Participant
-actor 管理者 as Admin
-rectangle システム {
-  usecase "在籍ステータスを変更" as UC_ChangeEnrollment
-  usecase "課題の進捗ステータスを変更" as UC_ChangeProgress
-  usecase "自動チーム再編成" as UC_AutoRestructure
-  usecase "チームが2名以下の通知メール送信" as UC_NotifyLowTeam
-  usecase "1名のチームの自動合流" as UC_AutoMerge
-  usecase "合流先の選定（最少人数／同数はランダム）" as UC_SelectDest
-  usecase "合流先なしの通知メール送信" as UC_NotifyNoDest
-  usecase "復帰時の自動所属（最少人数チームへ）" as UC_AutoAssignOnReturn
-  usecase "5名になった場合の自動分解" as UC_AutoSplit
+
+' 参加者コンテキスト
+package "参加者コンテキスト" as UC_Participant <<Bounded Context>> {
+  usecase "入会" as UC_Enroll
+  usecase "休会" as UC_Pause
+  usecase "復帰" as UC_Return
+  usecase "退会" as UC_Leave
+}
+
+' チームコンテキスト
+package "チームコンテキスト" as UC_Team <<Bounded Context>> {
+  together {
+    usecase "チームを探して参加" as UC_FindAndJoin
+    usecase "所属しているチームから離脱" as UC_LeaveTeam
+  }
+
+  together {
+    usecase "チームが2名以下の通知メール送信" as UC_NotifyLowTeam
+    usecase "1名のチームの自動合流" as UC_AutoMerge
+    usecase "5名になった場合の自動分解" as UC_AutoSplit
+  }
+
+
+}
+
+' 課題コンテキスト
+package "課題コンテキスト" as UC_Task <<Bounded Context>> {
+  usecase "課題に着手" as UC_StartTask
+  usecase "レビューを依頼" as UC_RequestReview
+  usecase "レビュー依頼を取り消し" as UC_CancelReview
+  usecase "課題を完了" as UC_CompleteTask
 }
 
 ' アクターとユースケースの関連
-Participant --> UC_ChangeEnrollment
-Participant --> UC_ChangeProgress
+Participant --> UC_Enroll
+Participant --> UC_Pause
+Participant --> UC_Return
+Participant --> UC_Leave
 
-' システム内部の振る舞い（include / extend）
-UC_ChangeEnrollment --> UC_AutoRestructure : <<extend>>
+Participant --> UC_StartTask
+Participant --> UC_RequestReview
+Participant --> UC_CancelReview
+Participant --> UC_CompleteTask
 
-UC_AutoRestructure --> UC_NotifyLowTeam : <<include>>
-UC_AutoRestructure --> UC_AutoMerge : <<include>>
-UC_AutoRestructure --> UC_AutoAssignOnReturn : <<include>>
-UC_AutoRestructure --> UC_AutoSplit : <<include>>
+' チームコンテキスト内の振る舞い
+UC_LeaveTeam .down.> UC_NotifyLowTeam : 消滅危機チーム発生イベント
+UC_LeaveTeam .down.> UC_AutoMerge : 要合流チーム発生イベント
+UC_FindAndJoin .down.> UC_AutoSplit : 要分割チーム発生イベント
+UC_AutoMerge .up.> UC_AutoSplit: 要分割チーム発生イベント
 
-UC_AutoMerge --> UC_SelectDest : <<include>>
-UC_AutoAssignOnReturn --> UC_SelectDest : <<include>>
-UC_AutoMerge --> UC_NotifyNoDest : <<extend>>
-
-' 管理者は通知メールを受け取る
-Admin <-- UC_NotifyLowTeam
-Admin <-- UC_NotifyNoDest
+' コンテキスト連携（イベント/メッセージ駆動）
+UC_Pause .down.> UC_LeaveTeam : 休会イベント
+UC_Leave .down.> UC_LeaveTeam : 退会イベント
+UC_Enroll .down.> UC_FindAndJoin : 入会イベント
+UC_Return .down.> UC_FindAndJoin : 復帰イベント
 
 ' 制約・補足（注釈）
-note right of UC_ChangeProgress
-  進捗ステータスの遷移規則:
-  未着手 -> 取組中 -> レビュー待ち -> 完了
-  レビュー待ち -> 取組中 への戻し可
-  完了 は変更不可
+note right of UC_Task
+  課題進捗の操作単位:
+  - 課題に着手: 未着手 -> 取組中
+  - レビューを依頼: 取組中 -> レビュー待ち
+  - レビュー依頼を取り消し: レビュー待ち -> 取組中
+  - 課題を完了: レビュー待ち -> 完了（完了後は変更不可）
   変更できるのは所有者本人のみ
 end note
 
-note bottom of UC_AutoRestructure
-  在籍ステータス変更に伴い自動実行:
-  - 減少でチームが2名以下: 管理者へ通知
-  - 1名チームが発生: 自動合流（最少人数優先/同数はランダム）
-  - 復帰: 最少人数チームに自動所属
-  - 5名になった場合: 自動で2チームへ分解（分け方は任意）
+note right of UC_Team
+  在籍ステータスの変更に伴い自動実行（2つのフロー）:
+  - 離脱フロー（休会/退会）: 減少でチームが2名以下なら管理者へ通知。1名チームは自動合流（最少人数優先/同数はランダム）。
+  - 参加フロー（入会/復帰）: 最少人数チームに自動所属。5名になった場合は自動で2チームへ分解（分け方は任意）。
 end note
 
 @enduml
