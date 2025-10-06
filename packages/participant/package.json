@@ -1,6 +1,6 @@
 {
-  "name": "@ponp/sample",
-  "version": "0.1.0",
+  "name": "@ponp/participant",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -10,6 +10,9 @@
   "scripts": {
     "build": "tsc -b",
     "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@ponp/fundamental": "workspace:*"
   },
   "devDependencies": {
     "@ponp/typescript-config": "workspace:*",

@@ -1,6 +1,6 @@
 {
-  "name": "@ponp/sample",
-  "version": "0.1.0",
+  "name": "@ponp/fundamental",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -15,5 +15,8 @@
     "@ponp/typescript-config": "workspace:*",
     "eslint": "^9.13.0",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0"
   }
 }
