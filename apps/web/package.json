@@ -9,7 +9,6 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
-    "@ponp/sample": "workspace:*",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

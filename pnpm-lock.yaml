@@ -23,9 +23,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@ponp/sample':
-        specifier: workspace:*
-        version: link:../../packages/sample
       next:
         specifier: ^15.5.4
         version: 15.5.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -124,18 +121,6 @@ importers:
       '@ponp/fundamental':
         specifier: workspace:*
         version: link:../fundamental
-    devDependencies:
-      '@ponp/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      eslint:
-        specifier: ^9.13.0
-        version: 9.37.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  packages/sample:
     devDependencies:
       '@ponp/typescript-config':
         specifier: workspace:*
@@ -1207,8 +1192,7 @@ packages:
           targets:
             - cpu: x86
               os: win32
-    version: 22.20.0
-    hasBin: true
+    version: 0.0.0
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
