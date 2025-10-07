@@ -1,0 +1,229 @@
+import type { UnwrapNominalRecord } from "@ponp/fundamental";
+
+import type { Participant } from "./participant";
+import { ParticipantId, ParticipantName } from "./participant";
+
+/* ---- 型 ---- */
+
+/**
+ * 新しい参加者が入会したことを表すイベントです。
+ */
+export type ParticipantEnrolled = {
+  /**
+   * 入会した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 入会した参加者の名前です。
+   * @see ParticipantName
+   */
+  name: ParticipantName;
+
+  /**
+   * 入会した日時です。
+   */
+  enrolledAt: Date;
+};
+
+/**
+ * 在籍中の参加者が休会したことを表すイベントです。
+ */
+export type ParticipantSuspended = {
+  /**
+   * 休会した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 休会した参加者の名前です。
+   * @see ParticipantName
+   */
+  name: ParticipantName;
+
+  /**
+   * 休会した日時です。
+   */
+  suspendedAt: Date;
+};
+
+/**
+ * 休会中の参加者が復帰したことを表すイベントです。
+ */
+export type ParticipantReactivated = {
+  /**
+   * 復帰した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 復帰した参加者の名前です。
+   * @see ParticipantName
+   */
+  name: ParticipantName;
+
+  /**
+   * 復帰した日時です。
+   */
+  reactivatedAt: Date;
+};
+
+/**
+ * 参加者が退会したことを表すイベントです。
+ */
+export type ParticipantWithdrawn = {
+  /**
+   * 退会した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 退会した参加者の名前です。
+   * @see ParticipantName
+   */
+  name: ParticipantName;
+
+  /**
+   * 退会した日時です。
+   */
+  withdrawnAt: Date;
+};
+
+/**
+ * 参加者コンテキストのすべてのドメインイベントのユニオンです。
+ */
+export type ParticipantEvent =
+  | ParticipantEnrolled
+  | ParticipantSuspended
+  | ParticipantReactivated
+  | ParticipantWithdrawn;
+
+/* ---- ファクトリ関数 ---- */
+
+/**
+ * 参加者の入会イベントの再構築に必要なパラメータです。
+ */
+type ParticipantEnrolledReconstructParams = UnwrapNominalRecord<ParticipantEnrolled>;
+
+/**
+ * 参加者の入会イベントのファクトリ関数です。
+ *
+ * @param params 参加者の入会イベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された入会イベントを返します。
+ */
+export const reconstructParticipantEnrolled = (
+  params: ParticipantEnrolledReconstructParams,
+): ParticipantEnrolled => ({
+  participantId: ParticipantId(params.participantId),
+  name: ParticipantName(params.name),
+  enrolledAt: params.enrolledAt,
+});
+
+/**
+ * 指定した参加者に対する入会イベントを作成します。
+ *
+ * @param participant 対象の参加者です。
+ * @returns 新しい入会イベントを返します。
+ */
+export const createParticipantEnrolled = (participant: Participant): ParticipantEnrolled => ({
+  participantId: participant.id,
+  name: participant.name,
+  enrolledAt: new Date(),
+});
+
+/**
+ * 参加者の休会イベントの再構築に必要なパラメータです。
+ */
+type ParticipantSuspendedReconstructParams = UnwrapNominalRecord<ParticipantSuspended>;
+
+/**
+ * 参加者の休会イベントのファクトリ関数です。
+ *
+ * @param params 参加者の休会イベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された休会イベントを返します。
+ */
+export const reconstructParticipantSuspended = (
+  params: ParticipantSuspendedReconstructParams,
+): ParticipantSuspended => ({
+  participantId: ParticipantId(params.participantId),
+  name: ParticipantName(params.name),
+  suspendedAt: params.suspendedAt,
+});
+
+/**
+ * 指定した参加者に対する休会イベントを作成します。
+ *
+ * @param participant 対象の参加者です。
+ * @returns 新しい休会イベントを返します。
+ */
+export const createParticipantSuspended = (participant: Participant): ParticipantSuspended => ({
+  participantId: participant.id,
+  name: participant.name,
+  suspendedAt: new Date(),
+});
+
+/**
+ * 参加者の復帰イベントの再構築に必要なパラメータです。
+ */
+type ParticipantReactivatedReconstructParams = UnwrapNominalRecord<ParticipantReactivated>;
+
+/**
+ * 参加者の復帰イベントのファクトリ関数です。
+ *
+ * @param params 参加者の復帰イベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された復帰イベントを返します。
+ */
+export const reconstructParticipantReactivated = (
+  params: ParticipantReactivatedReconstructParams,
+): ParticipantReactivated => ({
+  participantId: ParticipantId(params.participantId),
+  name: ParticipantName(params.name),
+  reactivatedAt: params.reactivatedAt,
+});
+
+/**
+ * 指定した参加者に対する復帰イベントを作成します。
+ *
+ * @param participant 対象の参加者です。
+ * @returns 新しい復帰イベントを返します。
+ */
+export const createParticipantReactivated = (participant: Participant): ParticipantReactivated => ({
+  participantId: participant.id,
+  name: participant.name,
+  reactivatedAt: new Date(),
+});
+
+/**
+ * 参加者の退会イベントの再構築に必要なパラメータです。
+ */
+type ParticipantWithdrawnReconstructParams = UnwrapNominalRecord<ParticipantWithdrawn>;
+
+/**
+ * 参加者の退会イベントのファクトリ関数です。
+ *
+ * @param params 参加者の退会イベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された退会イベントを返します。
+ */
+export const reconstructParticipantWithdrawn = (
+  params: ParticipantWithdrawnReconstructParams,
+): ParticipantWithdrawn => ({
+  participantId: ParticipantId(params.participantId),
+  name: ParticipantName(params.name),
+  withdrawnAt: params.withdrawnAt,
+});
+
+/**
+ * 指定した参加者に対する退会イベントを作成します。
+ *
+ * @param participant 対象の参加者です。
+ * @returns 新しい退会イベントを返します。
+ */
+export const createParticipantWithdrawn = (participant: Participant): ParticipantWithdrawn => ({
+  participantId: participant.id,
+  name: participant.name,
+  withdrawnAt: new Date(),
+});

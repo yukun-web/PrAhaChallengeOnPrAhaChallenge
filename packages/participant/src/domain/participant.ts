@@ -1,3 +1,4 @@
+import type { UnwrapNominalRecord } from "@ponp/fundamental";
 import {
   assert,
   assertEmail,
@@ -62,10 +63,10 @@ export type Participant = {
   status: ParticipantStatus;
 };
 
-/* ---- コンストラクタ / メソッド ---- */
+/* ---- ファクトリ関数 / メソッド ---- */
 
 /**
- * 参加者の識別子のコンストラクタです。
+ * 参加者の識別子のファクトリ関数です。
  *
  * @param value 参加者の識別子の文字列です。
  * @returns 指定された文字列が参加者の識別子として有効であれば、その文字列を公称型にして返します。
@@ -92,7 +93,7 @@ ParticipantId.generate = () => {
 };
 
 /**
- * 参加者の名前のコンストラクタです。
+ * 参加者の名前のファクトリ関数です。
  *
  * @param value 参加者の名前の文字列です。
  * @returns 指定された文字列が参加者の名前として有効であれば、その文字列を公称型にして返します。
@@ -110,7 +111,7 @@ export const ParticipantName = (value: string): ParticipantName => {
 };
 
 /**
- * 参加者のメールアドレスのコンストラクタです。
+ * 参加者のメールアドレスのファクトリ関数です。
  *
  * @param value 参加者のメールアドレスの文字列です。
  * @returns 指定された文字列が参加者のメールアドレスとして有効であれば、その文字列を公称型にして返します。
@@ -128,7 +129,7 @@ export const ParticipantEmail = (value: string): ParticipantEmail => {
 };
 
 /**
- * 参加者の在籍ステータスのコンストラクタです。
+ * 参加者の在籍ステータスのファクトリ関数です。
  *
  * @param value 参加者の在籍ステータスの文字列です。
  * @returns 指定された文字列が参加者の在籍ステータスとして有効であれば、その文字列を公称型にして返します。
@@ -161,36 +162,31 @@ ParticipantStatus.SUSPENDED = ParticipantStatus("SUSPENDED");
 ParticipantStatus.WITHDRAWN = ParticipantStatus("WITHDRAWN");
 
 /**
- * 参加者のコンストラクタのためのパラメータです。
+ * 参加者の再構築に必要なパラメータです。
  */
-export type ParticipantParams = {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-};
+export type ReconstructParticipantParams = UnwrapNominalRecord<Participant>;
 
 /**
- * 参加者のコンストラクタです。
+ * 参加者を再構築するための関数です。
  *
- * @param props 参加者のコンストラクタのためのパラメータです。
+ * @param params 参加者の再構築に必要なパラメータです。
  * @returns 指定されたパラメータの参加者を返します。
  * @throws {ValidationError} 指定されたプロパティのいずれかが不正な場合にスローされます。
- * @remarks この関数をユースケース内で使用しないでください。
+ * @remarks この関数はリポジトリでのみ使用し、アプリケーション層では用途にあったメソッドを使用してください。
  */
-export const Participant = (props: ParticipantParams): Participant => {
+export const reconstructParticipant = (params: ReconstructParticipantParams): Participant => {
   return {
-    id: ParticipantId(props.id),
-    name: ParticipantName(props.name),
-    email: ParticipantEmail(props.email),
-    status: ParticipantStatus(props.status),
+    id: ParticipantId(params.id),
+    name: ParticipantName(params.name),
+    email: ParticipantEmail(params.email),
+    status: ParticipantStatus(params.status),
   };
 };
 
 /**
  * 参加者の入会に必要なパラメータです。
  */
-export type EnrollParticipantParams = Omit<ParticipantParams, "id">;
+export type EnrollParticipantParams = Omit<UnwrapNominalRecord<Participant>, "id">;
 
 /**
  * 参加者を入会させます。
@@ -199,11 +195,13 @@ export type EnrollParticipantParams = Omit<ParticipantParams, "id">;
  * @returns 入会する参加者を返します。
  * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
  */
-Participant.enroll = (params: EnrollParticipantParams): Participant => {
-  return Participant({
-    ...params,
+export const enrollParticipant = (params: EnrollParticipantParams): Participant => {
+  return {
     id: ParticipantId.generate(),
-  });
+    name: ParticipantName(params.name),
+    email: ParticipantEmail(params.email),
+    status: ParticipantStatus(params.status),
+  };
 };
 
 /**
@@ -213,16 +211,16 @@ Participant.enroll = (params: EnrollParticipantParams): Participant => {
  * @returns 休会状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が在籍中でない場合にスローされます。
  */
-Participant.suspend = (participant: Participant): Participant => {
+export const suspendParticipant = (participant: Participant): Participant => {
   const notAllowedError = new DomainError("在籍中の参加者のみ休会できます。", {
     code: "SUSPEND_NOT_ALLOWED_FOR_NON_ACTIVE",
   });
-  assert(participant.status === ParticipantStatus.ACTIVE, notAllowedError);
+  assert(isActive(participant), notAllowedError);
 
-  return Participant({
+  return {
     ...participant,
     status: ParticipantStatus.SUSPENDED,
-  });
+  };
 };
 
 /**
@@ -232,16 +230,16 @@ Participant.suspend = (participant: Participant): Participant => {
  * @returns 復帰状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が休会中でない場合にスローされます。
  */
-Participant.reactivate = (participant: Participant): Participant => {
+export const reactivateParticipant = (participant: Participant): Participant => {
   const notSuspendedError = new DomainError("休会中の参加者のみ復帰できます。", {
     code: "REACTIVATE_NOT_ALLOWED_FOR_NON_SUSPENDED",
   });
-  assert(participant.status === ParticipantStatus.SUSPENDED, notSuspendedError);
+  assert(isSuspended(participant), notSuspendedError);
 
-  return Participant({
+  return {
     ...participant,
     status: ParticipantStatus.ACTIVE,
-  });
+  };
 };
 
 /**
@@ -251,14 +249,44 @@ Participant.reactivate = (participant: Participant): Participant => {
  * @returns 退会状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が既に退会済みの場合にスローされます。
  */
-Participant.withdraw = (participant: Participant): Participant => {
+export const withdrawParticipant = (participant: Participant): Participant => {
   const alreadyWithdrawnError = new DomainError("既に退会済みです。", {
     code: "ALREADY_WITHDRAWN",
   });
-  assert(participant.status !== ParticipantStatus.WITHDRAWN, alreadyWithdrawnError);
+  assert(!isWithdrawn(participant), alreadyWithdrawnError);
 
-  return Participant({
+  return {
     ...participant,
     status: ParticipantStatus.WITHDRAWN,
-  });
+  };
+};
+
+/**
+ * 参加者が在籍中かどうかを判定します。
+ *
+ * @param participant 判定する参加者です。
+ * @returns 参加者が在籍中の場合は true を、そうでない場合は false を返します。
+ */
+export const isActive = (participant: Participant): boolean => {
+  return participant.status === ParticipantStatus.ACTIVE;
+};
+
+/**
+ * 参加者が休会中かどうかを判定します。
+ *
+ * @param participant 判定する参加者です。
+ * @returns 参加者が休会中の場合は true を、そうでない場合は false を返します。
+ */
+export const isSuspended = (participant: Participant): boolean => {
+  return participant.status === ParticipantStatus.SUSPENDED;
+};
+
+/**
+ * 参加者が退会済みかどうかを判定します。
+ *
+ * @param participant 判定する参加者です。
+ * @returns 参加者が退会済みの場合は true を、そうでない場合は false を返します。
+ */
+export const isWithdrawn = (participant: Participant): boolean => {
+  return participant.status === ParticipantStatus.WITHDRAWN;
 };
