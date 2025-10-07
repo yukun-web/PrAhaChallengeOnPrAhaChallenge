@@ -1,7 +1,7 @@
 import type { Database } from "@ponp/fundamental";
-import { InfrastructureError } from "@ponp/fundamental";
-import { upsertAggregateTable } from "@ponp/fundamental";
+import { InfrastructureError, upsertAggregateTable } from "@ponp/fundamental";
 
+import type { SaveParticipant } from "../../application/port/participant.repository";
 import type { Participant } from "../../domain";
 import { participantsTable } from "../db/schema";
 
@@ -22,9 +22,10 @@ export const createSaveParticipant = (dependencies: Dependencies) => {
   /**
    * 参加者を保存します。
    *
-   * @param participant 保存する参加者を指定します。
+   * @param participant 保存する参加者です。
+   * @throws {InfrastructureError} 保存に失敗した場合はエラーをスローします。
    */
-  const saveParticipant = async (participant: Participant) => {
+  const saveParticipant: SaveParticipant = async (participant: Participant) => {
     try {
       await upsertAggregateTable(db, participantsTable, participant);
     } catch (error) {
