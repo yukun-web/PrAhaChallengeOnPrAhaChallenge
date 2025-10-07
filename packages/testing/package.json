@@ -1,5 +1,5 @@
 {
-  "name": "@ponp/fundamental",
+  "name": "@ponp/testing",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -11,12 +11,12 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.10",
+    "@ponp/fundamental": "workspace:*",
     "@ponp/typescript-config": "workspace:*",
-    "eslint": "^9.13.0",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
     "drizzle-orm": "^0.44.6",
-    "uuid": "^13.0.0"
+    "eslint": "^9.13.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }
