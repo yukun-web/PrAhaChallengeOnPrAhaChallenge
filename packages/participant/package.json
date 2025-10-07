@@ -8,11 +8,11 @@
   "types": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b",
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
-    "@ponp/fundamental": "workspace:*"
+    "@ponp/fundamental": "workspace:*",
+    "drizzle-orm": "^0.44.6"
   },
   "devDependencies": {
     "@ponp/typescript-config": "workspace:*",

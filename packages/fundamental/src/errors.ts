@@ -31,6 +31,38 @@ export class DomainError extends Error {
 }
 
 /**
+ * インフラエラーのオプションです。
+ */
+type InfrastructureErrorOptions = DomainErrorOptions & {
+  /**
+   * エラーコードです。
+   */
+  code: string;
+};
+
+/**
+ * インフラに関して予期しない状態が発生したことを表すエラーです。
+ */
+export class InfrastructureError extends Error {
+  /**
+   * エラーコードです。
+   */
+  public code: string;
+
+  static {
+    this.prototype.name = "InfrastructureError";
+  }
+
+  constructor(message: string, options: DomainErrorOptions) {
+    const { code, ...rest } = options;
+
+    super(message, rest);
+
+    this.code = code;
+  }
+}
+
+/**
  * バリデーションエラーのオプションです。
  */
 type ValidationErrorOptions = DomainErrorOptions & {
