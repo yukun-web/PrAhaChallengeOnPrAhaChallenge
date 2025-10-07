@@ -140,7 +140,7 @@ export const ParticipantStatus = (value: string): ParticipantStatus => {
     field: "ParticipantStatus",
     value,
   });
-  assertIncludes(["ACTIVE", "SUSPENDED", "WITHDRAWN"] as const, value, invalidFormatError);
+  assertIncludes(["ACTIVE", "SUSPENDED", "WITHDRAWN"], value, invalidFormatError);
 
   return value as ParticipantStatus;
 };

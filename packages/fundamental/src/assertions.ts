@@ -74,7 +74,7 @@ export function assertEmail(value: string, error: ValidationError): asserts valu
  * @throws {ValidationError} 指定した値が配列に含まれていない場合は指定された ValidationError をスローします。
  */
 export function assertIncludes<T>(
-  array: readonly T[],
+  array: T[],
   value: unknown,
   error: ValidationError,
 ): asserts value is T {

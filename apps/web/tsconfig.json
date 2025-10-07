@@ -1,12 +1,5 @@
 {
   "extends": "@ponp/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
-  },
   "include": [
     "**/*.ts",
     "**/*.tsx",
