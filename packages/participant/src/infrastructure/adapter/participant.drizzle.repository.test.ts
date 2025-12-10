@@ -1,9 +1,9 @@
 import type { Database } from "@ponp/fundamental";
 import { assertRecordExists, createInMemoryDatabase } from "@ponp/testing";
-import { beforeAll, describe, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 
 import type { ParticipantRepository } from "../../application/port/participant.repository";
-import { Participant } from "../../domain";
+import { Participant, ParticipantId } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
 import { participantsTable } from "../db/schema";
 import { ParticipantDrizzleRepository } from "./participant.drizzle.repository";
@@ -47,6 +47,33 @@ describe("ParticipantDrizzleRepository", () => {
 
       await repository.save(updatedParticipant);
       await assertRecordExists(db, participantsTable, updatedParticipant);
+    });
+  });
+
+  describe("findById", () => {
+    /**
+     * beforeAll でテスト対象の参加者取得のための関数が代入されます。
+     */
+    let repository: ParticipantRepository;
+
+    beforeAll(async () => {
+      db = await createInMemoryDatabase();
+      repository = ParticipantDrizzleRepository({ db });
+    });
+
+    test("保存済みの参加者を取得できる", async () => {
+      const participant = createDummyParticipant({ id: ParticipantId.generate() });
+      await repository.save(participant);
+
+      const result = await repository.findById(participant.id);
+
+      expect(result).toEqual(participant);
+    });
+
+    test("存在しない参加者の場合は undefined を返す", async () => {
+      const result = await repository.findById(ParticipantId.generate());
+
+      expect(result).toBeUndefined();
     });
   });
 });

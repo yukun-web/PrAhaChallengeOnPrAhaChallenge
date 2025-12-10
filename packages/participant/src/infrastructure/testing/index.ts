@@ -11,4 +11,9 @@ export const mockParticipantRepository: Mocked<ParticipantRepository> = {
    * 参加者を保存します。
    */
   save: vi.fn(),
+
+  /**
+   * ID から参加者を取得します。
+   */
+  findById: vi.fn(),
 };
