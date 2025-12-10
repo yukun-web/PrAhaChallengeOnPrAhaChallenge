@@ -2,6 +2,7 @@ import type { Database } from "@ponp/fundamental";
 import { InfrastructureError, upsertAggregateTable } from "@ponp/fundamental";
 import { eq } from "drizzle-orm";
 
+import type { ParticipantRepository } from "../../application/port/participant.repository";
 import type { ParticipantId } from "../../domain";
 import { Participant } from "../../domain";
 import { participantsTable } from "../db/schema";
@@ -19,7 +20,7 @@ type ParticipantDrizzleRepositoryDependencies = { db: Database };
  */
 export const ParticipantDrizzleRepository = (
   dependencies: ParticipantDrizzleRepositoryDependencies,
-) => {
+): ParticipantRepository => {
   const { db } = dependencies;
 
   return {

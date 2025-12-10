@@ -14,21 +14,17 @@ describe("ParticipantDrizzleRepository", () => {
    */
   let db: Database;
 
+  /**
+   * beforeAll で参加者リポジトリが代入されます。
+   */
+  let repository: ParticipantRepository;
+
   beforeAll(async () => {
     db = await createInMemoryDatabase();
+    repository = ParticipantDrizzleRepository({ db });
   });
 
   describe("save", () => {
-    /**
-     * beforeAll でテスト対象の参加者保存のための関数が代入されます。
-     */
-    let repository: ParticipantRepository;
-
-    beforeAll(async () => {
-      db = await createInMemoryDatabase();
-      repository = ParticipantDrizzleRepository({ db });
-    });
-
     test("参加者を保存できる", async () => {
       const participant = createDummyParticipant();
 
@@ -51,16 +47,6 @@ describe("ParticipantDrizzleRepository", () => {
   });
 
   describe("findById", () => {
-    /**
-     * beforeAll でテスト対象の参加者取得のための関数が代入されます。
-     */
-    let repository: ParticipantRepository;
-
-    beforeAll(async () => {
-      db = await createInMemoryDatabase();
-      repository = ParticipantDrizzleRepository({ db });
-    });
-
     test("保存済みの参加者を取得できる", async () => {
       const participant = createDummyParticipant({ id: ParticipantId.generate() });
       await repository.save(participant);

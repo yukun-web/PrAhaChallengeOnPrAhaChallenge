@@ -1,4 +1,4 @@
-import type { Participant } from "../../domain";
+import type { Participant, ParticipantId } from "../../domain";
 
 /**
  * 参加者リポジトリのインターフェースです。
@@ -19,5 +19,5 @@ export type ParticipantRepository = {
    * @returns 見つかった場合は参加者を、存在しない場合は undefined を返します。
    * @throws {InfrastructureError} 取得に失敗した場合はエラーをスローします。
    */
-  findById: (id: Participant["id"]) => Promise<Participant | undefined>;
+  findById: (id: ParticipantId) => Promise<Participant | undefined>;
 };
