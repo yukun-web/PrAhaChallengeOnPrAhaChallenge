@@ -53,7 +53,7 @@ export class InfrastructureError extends Error {
     this.prototype.name = "InfrastructureError";
   }
 
-  constructor(message: string, options: DomainErrorOptions) {
+  constructor(message: string, options: InfrastructureErrorOptions) {
     const { code, ...rest } = options;
 
     super(message, rest);

@@ -4,8 +4,6 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import * as process from "node:process";
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { PgColumn, PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import { PgTable } from "drizzle-orm/pg-core/table";
 import { eq } from "drizzle-orm";
 import { AggregateTable, Database } from "@ponp/fundamental";
 
