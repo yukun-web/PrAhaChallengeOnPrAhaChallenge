@@ -2,7 +2,7 @@ import type { Database } from "@ponp/fundamental";
 import { InfrastructureError, upsertAggregateTable } from "@ponp/fundamental";
 import { eq } from "drizzle-orm";
 
-import type { Participant as ParticipantType } from "../../domain";
+import type { ParticipantId } from "../../domain";
 import { Participant } from "../../domain";
 import { participantsTable } from "../db/schema";
 
@@ -29,7 +29,7 @@ export const ParticipantDrizzleRepository = (
      * @param participant 保存する参加者です。
      * @throws {InfrastructureError} 保存に失敗した場合はエラーをスローします。
      */
-    async save(participant: ParticipantType) {
+    async save(participant: Participant) {
       try {
         await upsertAggregateTable(db, participantsTable, participant);
       } catch (error) {
@@ -47,7 +47,7 @@ export const ParticipantDrizzleRepository = (
      * @returns 見つかった場合は参加者を、存在しない場合は undefined を返します。
      * @throws {InfrastructureError} 取得に失敗した場合はエラーをスローします。
      */
-    async findById(id: ParticipantType["id"]) {
+    async findById(id: ParticipantId) {
       try {
         const [record] = await db
           .select({ data: participantsTable.data })
@@ -60,7 +60,8 @@ export const ParticipantDrizzleRepository = (
           return undefined;
         }
 
-        return Participant.reconstruct(record.data as ParticipantType);
+        // reconstruct の中で各値のバリエーションが当たるので as を許容しています。 TODO: 本当にそれでいいのか検討
+        return Participant.reconstruct(record.data as Participant);
       } catch (error) {
         throw new InfrastructureError("参加者の取得に失敗しました。", {
           code: "PARTICIPANT_FIND_BY_ID_FAILED",
