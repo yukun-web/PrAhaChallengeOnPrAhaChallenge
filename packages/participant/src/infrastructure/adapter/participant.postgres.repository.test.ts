@@ -3,9 +3,7 @@ import { assertRecordExists, createInMemoryDatabase } from "@ponp/testing";
 import { beforeAll, describe, test } from "vitest";
 
 import type { SaveParticipant } from "../../application/port/participant.repository";
-import type { Participant } from "../../domain";
-import { withdrawParticipant } from "../../domain";
-import { reconstructParticipant } from "../../domain";
+import { Participant, type Participant as ParticipantType } from "../../domain";
 import { participantsTable } from "../db/schema";
 import { createSaveParticipant } from "./participant.postgres.repository";
 
@@ -31,7 +29,7 @@ describe("ParticipantPostgresRepository", () => {
     });
 
     test("参加者を保存できる", async () => {
-      const participant: Participant = reconstructParticipant({
+      const participant: ParticipantType = Participant.reconstruct({
         id: "27ededf6-e5c3-4eb2-b0ff-5f67e892e096",
         name: "山田 太郎",
         email: "yamada@example.com",
@@ -44,7 +42,7 @@ describe("ParticipantPostgresRepository", () => {
     });
 
     test("保存した参加者を更新できる", async () => {
-      const participant: Participant = reconstructParticipant({
+      const participant: ParticipantType = Participant.reconstruct({
         id: "27ededf6-e5c3-4eb2-b0ff-5f67e892e096",
         name: "山田 太郎",
         email: "yamada@example.com",
@@ -54,7 +52,7 @@ describe("ParticipantPostgresRepository", () => {
       await saveParticipant(participant);
       await assertRecordExists(db, participantsTable, participant);
 
-      const updatedParticipant = withdrawParticipant(participant);
+      const updatedParticipant = Participant.withdraw(participant);
 
       await saveParticipant(updatedParticipant);
       await assertRecordExists(db, participantsTable, updatedParticipant);

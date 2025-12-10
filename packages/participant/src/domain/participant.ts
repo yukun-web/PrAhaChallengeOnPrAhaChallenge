@@ -63,6 +63,14 @@ export type Participant = {
   status: ParticipantStatus;
 };
 
+/**
+ * 参加者のコンストラクターです。
+ */
+export const Participant = (params: Participant) => {
+  // エンティティ単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
 /* ---- ファクトリ関数 / メソッド ---- */
 
 /**
@@ -174,13 +182,13 @@ export type ReconstructParticipantParams = UnwrapNominalRecord<Participant>;
  * @throws {ValidationError} 指定されたプロパティのいずれかが不正な場合にスローされます。
  * @remarks この関数はリポジトリでのみ使用し、アプリケーション層では用途にあったメソッドを使用してください。
  */
-export const reconstructParticipant = (params: ReconstructParticipantParams): Participant => {
-  return {
+Participant.reconstruct = (params: ReconstructParticipantParams): Participant => {
+  return Participant({
     id: ParticipantId(params.id),
     name: ParticipantName(params.name),
     email: ParticipantEmail(params.email),
     status: ParticipantStatus(params.status),
-  };
+  });
 };
 
 /**
@@ -195,13 +203,13 @@ export type EnrollParticipantParams = Omit<UnwrapNominalRecord<Participant>, "id
  * @returns 入会する参加者を返します。
  * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
  */
-export const enrollParticipant = (params: EnrollParticipantParams): Participant => {
-  return {
+Participant.enroll = (params: EnrollParticipantParams): Participant => {
+  return Participant({
     id: ParticipantId.generate(),
     name: ParticipantName(params.name),
     email: ParticipantEmail(params.email),
     status: ParticipantStatus.ACTIVE,
-  };
+  });
 };
 
 /**
@@ -211,16 +219,16 @@ export const enrollParticipant = (params: EnrollParticipantParams): Participant 
  * @returns 休会状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が在籍中でない場合にスローされます。
  */
-export const suspendParticipant = (participant: Participant): Participant => {
+Participant.suspend = (participant: Participant): Participant => {
   const notAllowedError = new DomainError("在籍中の参加者のみ休会できます。", {
     code: "SUSPEND_NOT_ALLOWED_FOR_NON_ACTIVE",
   });
-  assert(isActive(participant), notAllowedError);
+  assert(Participant.isActive(participant), notAllowedError);
 
-  return {
+  return Participant({
     ...participant,
     status: ParticipantStatus.SUSPENDED,
-  };
+  });
 };
 
 /**
@@ -230,16 +238,16 @@ export const suspendParticipant = (participant: Participant): Participant => {
  * @returns 復帰状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が休会中でない場合にスローされます。
  */
-export const reactivateParticipant = (participant: Participant): Participant => {
+Participant.reactivate = (participant: Participant): Participant => {
   const notSuspendedError = new DomainError("休会中の参加者のみ復帰できます。", {
     code: "REACTIVATE_NOT_ALLOWED_FOR_NON_SUSPENDED",
   });
-  assert(isSuspended(participant), notSuspendedError);
+  assert(Participant.isSuspended(participant), notSuspendedError);
 
-  return {
+  return Participant({
     ...participant,
     status: ParticipantStatus.ACTIVE,
-  };
+  });
 };
 
 /**
@@ -249,16 +257,16 @@ export const reactivateParticipant = (participant: Participant): Participant => 
  * @returns 退会状態の参加者を返します。
  * @throws {DomainError} 指定した参加者が既に退会済みの場合にスローされます。
  */
-export const withdrawParticipant = (participant: Participant): Participant => {
+Participant.withdraw = (participant: Participant): Participant => {
   const alreadyWithdrawnError = new DomainError("既に退会済みです。", {
     code: "ALREADY_WITHDRAWN",
   });
-  assert(!isWithdrawn(participant), alreadyWithdrawnError);
+  assert(!Participant.isWithdrawn(participant), alreadyWithdrawnError);
 
-  return {
+  return Participant({
     ...participant,
     status: ParticipantStatus.WITHDRAWN,
-  };
+  });
 };
 
 /**
@@ -267,7 +275,7 @@ export const withdrawParticipant = (participant: Participant): Participant => {
  * @param participant 判定する参加者です。
  * @returns 参加者が在籍中の場合は true を、そうでない場合は false を返します。
  */
-export const isActive = (participant: Participant): boolean => {
+Participant.isActive = (participant: Participant): boolean => {
   return participant.status === ParticipantStatus.ACTIVE;
 };
 
@@ -277,7 +285,7 @@ export const isActive = (participant: Participant): boolean => {
  * @param participant 判定する参加者です。
  * @returns 参加者が休会中の場合は true を、そうでない場合は false を返します。
  */
-export const isSuspended = (participant: Participant): boolean => {
+Participant.isSuspended = (participant: Participant): boolean => {
   return participant.status === ParticipantStatus.SUSPENDED;
 };
 
@@ -287,6 +295,6 @@ export const isSuspended = (participant: Participant): boolean => {
  * @param participant 判定する参加者です。
  * @returns 参加者が退会済みの場合は true を、そうでない場合は false を返します。
  */
-export const isWithdrawn = (participant: Participant): boolean => {
+Participant.isWithdrawn = (participant: Participant): boolean => {
   return participant.status === ParticipantStatus.WITHDRAWN;
 };

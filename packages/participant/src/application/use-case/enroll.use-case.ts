@@ -1,4 +1,4 @@
-import { enrollParticipant, ParticipantEmail, ParticipantName } from "../../domain";
+import { Participant, ParticipantEmail, ParticipantName } from "../../domain";
 import type { SaveParticipant } from "../port/participant.repository";
 
 /**
@@ -51,7 +51,7 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
   const executeEnrollUseCase = async (params: EnrollParams) => {
     const { name, email } = params;
 
-    const enrolledParticipant = enrollParticipant({
+    const enrolledParticipant = Participant.enroll({
       name: ParticipantName(name),
       email: ParticipantEmail(email),
     });
