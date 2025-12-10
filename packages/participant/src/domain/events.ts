@@ -110,18 +110,31 @@ export type ParticipantEvent =
 type ParticipantEnrolledReconstructParams = UnwrapNominalRecord<ParticipantEnrolled>;
 
 /**
+ * 参加者入会イベントのコンストラクタです。
+ *
+ * @param params 参加者入会イベントのパラメータです。
+ * @returns 参加者入会イベントのインスタンスを返します。
+ */
+export const ParticipantEnrolled = (params: ParticipantEnrolled) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
  * 参加者の入会イベントのファクトリ関数です。
  *
  * @param params 参加者の入会イベントの再構築に必要なパラメータです。
  * @returns 値オブジェクトに変換された入会イベントを返します。
  */
-export const reconstructParticipantEnrolled = (
+ParticipantEnrolled.reconstruct = (
   params: ParticipantEnrolledReconstructParams,
-): ParticipantEnrolled => ({
-  participantId: ParticipantId(params.participantId),
-  name: ParticipantName(params.name),
-  enrolledAt: params.enrolledAt,
-});
+): ParticipantEnrolled => {
+  return ParticipantEnrolled({
+    participantId: ParticipantId(params.participantId),
+    name: ParticipantName(params.name),
+    enrolledAt: params.enrolledAt,
+  });
+};
 
 /**
  * 指定した参加者に対する入会イベントを作成します。
@@ -129,11 +142,21 @@ export const reconstructParticipantEnrolled = (
  * @param participant 対象の参加者です。
  * @returns 新しい入会イベントを返します。
  */
-export const createParticipantEnrolled = (participant: Participant): ParticipantEnrolled => ({
-  participantId: participant.id,
-  name: participant.name,
-  enrolledAt: new Date(),
-});
+ParticipantEnrolled.create = (participant: Participant): ParticipantEnrolled => {
+  return ParticipantEnrolled({
+    participantId: participant.id,
+    name: participant.name,
+    enrolledAt: new Date(),
+  });
+};
+
+/**
+ * 参加者の休会イベントのコンストラクターです。
+ */
+export const ParticipantSuspended = (params: ParticipantSuspended) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
 
 /**
  * 参加者の休会イベントの再構築に必要なパラメータです。
@@ -146,13 +169,15 @@ type ParticipantSuspendedReconstructParams = UnwrapNominalRecord<ParticipantSusp
  * @param params 参加者の休会イベントの再構築に必要なパラメータです。
  * @returns 値オブジェクトに変換された休会イベントを返します。
  */
-export const reconstructParticipantSuspended = (
+ParticipantSuspended.reconstruct = (
   params: ParticipantSuspendedReconstructParams,
-): ParticipantSuspended => ({
-  participantId: ParticipantId(params.participantId),
-  name: ParticipantName(params.name),
-  suspendedAt: params.suspendedAt,
-});
+): ParticipantSuspended => {
+  return ParticipantSuspended({
+    participantId: ParticipantId(params.participantId),
+    name: ParticipantName(params.name),
+    suspendedAt: params.suspendedAt,
+  });
+};
 
 /**
  * 指定した参加者に対する休会イベントを作成します。
@@ -160,11 +185,13 @@ export const reconstructParticipantSuspended = (
  * @param participant 対象の参加者です。
  * @returns 新しい休会イベントを返します。
  */
-export const createParticipantSuspended = (participant: Participant): ParticipantSuspended => ({
-  participantId: participant.id,
-  name: participant.name,
-  suspendedAt: new Date(),
-});
+ParticipantSuspended.create = (participant: Participant): ParticipantSuspended => {
+  return ParticipantSuspended({
+    participantId: participant.id,
+    name: participant.name,
+    suspendedAt: new Date(),
+  });
+};
 
 /**
  * 参加者の復帰イベントの再構築に必要なパラメータです。
@@ -172,18 +199,28 @@ export const createParticipantSuspended = (participant: Participant): Participan
 type ParticipantReactivatedReconstructParams = UnwrapNominalRecord<ParticipantReactivated>;
 
 /**
+ * 参加者の復帰イベントのコンストラクターです。
+ */
+export const ParticipantReactivated = (params: ParticipantReactivated) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
  * 参加者の復帰イベントのファクトリ関数です。
  *
  * @param params 参加者の復帰イベントの再構築に必要なパラメータです。
  * @returns 値オブジェクトに変換された復帰イベントを返します。
  */
-export const reconstructParticipantReactivated = (
+ParticipantReactivated.reconstruct = (
   params: ParticipantReactivatedReconstructParams,
-): ParticipantReactivated => ({
-  participantId: ParticipantId(params.participantId),
-  name: ParticipantName(params.name),
-  reactivatedAt: params.reactivatedAt,
-});
+): ParticipantReactivated => {
+  return ParticipantReactivated({
+    participantId: ParticipantId(params.participantId),
+    name: ParticipantName(params.name),
+    reactivatedAt: params.reactivatedAt,
+  });
+};
 
 /**
  * 指定した参加者に対する復帰イベントを作成します。
@@ -191,11 +228,13 @@ export const reconstructParticipantReactivated = (
  * @param participant 対象の参加者です。
  * @returns 新しい復帰イベントを返します。
  */
-export const createParticipantReactivated = (participant: Participant): ParticipantReactivated => ({
-  participantId: participant.id,
-  name: participant.name,
-  reactivatedAt: new Date(),
-});
+ParticipantReactivated.create = (participant: Participant): ParticipantReactivated => {
+  return ParticipantReactivated({
+    participantId: participant.id,
+    name: participant.name,
+    reactivatedAt: new Date(),
+  });
+};
 
 /**
  * 参加者の退会イベントの再構築に必要なパラメータです。
@@ -203,18 +242,28 @@ export const createParticipantReactivated = (participant: Participant): Particip
 type ParticipantWithdrawnReconstructParams = UnwrapNominalRecord<ParticipantWithdrawn>;
 
 /**
+ * 参加者の退会イベントのコンストラクターです。
+ */
+export const ParticipantWithdrawn = (params: ParticipantWithdrawn) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
  * 参加者の退会イベントのファクトリ関数です。
  *
  * @param params 参加者の退会イベントの再構築に必要なパラメータです。
  * @returns 値オブジェクトに変換された退会イベントを返します。
  */
-export const reconstructParticipantWithdrawn = (
+ParticipantWithdrawn.reconstruct = (
   params: ParticipantWithdrawnReconstructParams,
-): ParticipantWithdrawn => ({
-  participantId: ParticipantId(params.participantId),
-  name: ParticipantName(params.name),
-  withdrawnAt: params.withdrawnAt,
-});
+): ParticipantWithdrawn => {
+  return ParticipantWithdrawn({
+    participantId: ParticipantId(params.participantId),
+    name: ParticipantName(params.name),
+    withdrawnAt: params.withdrawnAt,
+  });
+};
 
 /**
  * 指定した参加者に対する退会イベントを作成します。
@@ -222,8 +271,10 @@ export const reconstructParticipantWithdrawn = (
  * @param participant 対象の参加者です。
  * @returns 新しい退会イベントを返します。
  */
-export const createParticipantWithdrawn = (participant: Participant): ParticipantWithdrawn => ({
-  participantId: participant.id,
-  name: participant.name,
-  withdrawnAt: new Date(),
-});
+ParticipantWithdrawn.create = (participant: Participant): ParticipantWithdrawn => {
+  return ParticipantWithdrawn({
+    participantId: participant.id,
+    name: participant.name,
+    withdrawnAt: new Date(),
+  });
+};
