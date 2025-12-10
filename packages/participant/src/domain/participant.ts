@@ -196,7 +196,7 @@ Participant.reconstruct = (params: ReconstructParticipantParams): Participant =>
 /**
  * 参加者の入会に必要なパラメータです。
  */
-export type EnrollParticipantParams = Omit<UnwrapNominalRecord<Participant>, "id" | "status">;
+export type EnrollParticipantParams = Omit<Participant, "id" | "status">;
 
 /**
  * 参加者を入会させます。
@@ -208,8 +208,8 @@ export type EnrollParticipantParams = Omit<UnwrapNominalRecord<Participant>, "id
 Participant.enroll = (params: EnrollParticipantParams): [Participant, ParticipantEnrolled] => {
   const participant = Participant({
     id: ParticipantId.generate(),
-    name: ParticipantName(params.name),
-    email: ParticipantEmail(params.email),
+    name: params.name,
+    email: params.email,
     status: ParticipantStatus.ACTIVE,
   });
 

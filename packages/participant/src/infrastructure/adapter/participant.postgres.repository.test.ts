@@ -2,11 +2,11 @@ import type { Database } from "@ponp/fundamental";
 import { assertRecordExists, createInMemoryDatabase } from "@ponp/testing";
 import { beforeAll, describe, test } from "vitest";
 
-import type { SaveParticipant } from "../../application/port/participant.repository";
+import type { ParticipantRepository } from "../../application/port/participant.repository";
 import { Participant } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
 import { participantsTable } from "../db/schema";
-import { createSaveParticipant } from "./participant.postgres.repository";
+import { ParticipantDrizzleRepository } from "./participant.drizzle.repository";
 
 describe("ParticipantPostgresRepository", () => {
   /**
@@ -22,17 +22,17 @@ describe("ParticipantPostgresRepository", () => {
     /**
      * beforeAll でテスト対象の参加者保存のための関数が代入されます。
      */
-    let saveParticipant: SaveParticipant;
+    let repository: ParticipantRepository;
 
     beforeAll(async () => {
       db = await createInMemoryDatabase();
-      saveParticipant = createSaveParticipant({ db });
+      repository = ParticipantDrizzleRepository({ db });
     });
 
     test("参加者を保存できる", async () => {
       const participant = createDummyParticipant();
 
-      await saveParticipant(participant);
+      await repository.save(participant);
 
       await assertRecordExists(db, participantsTable, participant);
     });
@@ -40,12 +40,12 @@ describe("ParticipantPostgresRepository", () => {
     test("保存した参加者を更新できる", async () => {
       const participant = createDummyParticipant();
 
-      await saveParticipant(participant);
+      await repository.save(participant);
       await assertRecordExists(db, participantsTable, participant);
 
       const [updatedParticipant] = Participant.withdraw(participant);
 
-      await saveParticipant(updatedParticipant);
+      await repository.save(updatedParticipant);
       await assertRecordExists(db, participantsTable, updatedParticipant);
     });
   });

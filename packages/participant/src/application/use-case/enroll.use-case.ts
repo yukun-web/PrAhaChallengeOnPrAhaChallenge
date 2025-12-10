@@ -1,5 +1,5 @@
 import { Participant, ParticipantEmail, ParticipantName } from "../../domain";
-import type { SaveParticipant } from "../port/participant.repository";
+import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
  * 参加者の入会ユースケースが必要とする依存関係です。
@@ -7,9 +7,9 @@ import type { SaveParticipant } from "../port/participant.repository";
 type Dependencies = {
   /**
    * 参加者を保存するリポジトリの関数です。
-   * @see SaveParticipant
+   * @see ParcipantRepository
    */
-  saveParticipant: SaveParticipant;
+  participantRepository: ParticipantRepository;
 };
 
 /**
@@ -39,7 +39,7 @@ type ExecuteEnrollUseCase = (params: EnrollParams) => Promise<void>;
  * @returns 参加者の入会ユースケースを返します。
  */
 export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUseCase => {
-  const { saveParticipant } = dependencies;
+  const { participantRepository } = dependencies;
 
   /**
    * 参加者の入会を扱うユースケースです。
@@ -57,7 +57,7 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
     });
 
     console.log(participantEnrolled); // TODO: イベントバスに乗せる
-    await saveParticipant(enrolledParticipant);
+    await participantRepository.save(enrolledParticipant);
   };
 
   return executeEnrollUseCase;
