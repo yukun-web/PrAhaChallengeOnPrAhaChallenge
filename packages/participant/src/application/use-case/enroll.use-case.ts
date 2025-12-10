@@ -30,7 +30,7 @@ type EnrollParams = {
 /**
  * 参加者の入会ユースケースの関数の型です。
  */
-type ExecuteEnrollUseCase = (params: EnrollParams) => Promise<void>;
+export type ExecuteEnrollUseCase = (params: EnrollParams) => Promise<void>;
 
 /**
  * 参加者の入会ユースケースを作成します。
@@ -56,7 +56,7 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
       email: ParticipantEmail(email),
     });
 
-    console.log(participantEnrolled); // TODO: イベントバスに乗せる
+    console.log("event published", participantEnrolled); // TODO: イベントバスに乗せる
     await participantRepository.save(enrolledParticipant);
   };
 

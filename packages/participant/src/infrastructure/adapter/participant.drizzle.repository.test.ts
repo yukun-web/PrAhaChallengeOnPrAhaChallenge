@@ -8,7 +8,7 @@ import { createDummyParticipant } from "../../domain/testing";
 import { participantsTable } from "../db/schema";
 import { ParticipantDrizzleRepository } from "./participant.drizzle.repository";
 
-describe("ParticipantPostgresRepository", () => {
+describe("ParticipantDrizzleRepository", () => {
   /**
    * beforeAll でテスト用のインメモリデータベースへ接続されたクライアントが代入されます。
    */
@@ -18,7 +18,7 @@ describe("ParticipantPostgresRepository", () => {
     db = await createInMemoryDatabase();
   });
 
-  describe("saveParticipant", () => {
+  describe("save", () => {
     /**
      * beforeAll でテスト対象の参加者保存のための関数が代入されます。
      */
