@@ -53,17 +53,8 @@ export const ParticipantDrizzleRepository = (
      */
     async findById(id: ParticipantId) {
       try {
-        const record = await findAggregateTableById<Participant>(
-          db,
-          participantsTable,
-          id,
-        );
-
-        if (record === undefined) {
-          return undefined;
-        }
-
-        return Participant.reconstruct(record);
+        const record = await findAggregateTableById<Participant>(db, participantsTable, id);
+        return record && Participant.reconstruct(record);
       } catch (error) {
         throw new InfrastructureError("参加者の取得に失敗しました。", {
           code: "PARTICIPANT_FIND_BY_ID_FAILED",
