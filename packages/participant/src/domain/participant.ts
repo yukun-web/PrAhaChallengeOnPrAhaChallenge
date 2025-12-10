@@ -11,7 +11,12 @@ import {
   ValidationError,
 } from "@ponp/fundamental";
 
-import { ParticipantEnrolled, ParticipantReactivated, ParticipantSuspended, ParticipantWithdrawn, } from "./events";
+import {
+  ParticipantEnrolled,
+  ParticipantReactivated,
+  ParticipantSuspended,
+  ParticipantWithdrawn,
+} from "./events";
 
 /* ---- 型 ---- */
 
