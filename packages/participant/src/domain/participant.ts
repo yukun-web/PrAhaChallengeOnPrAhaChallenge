@@ -11,6 +11,8 @@ import {
   ValidationError,
 } from "@ponp/fundamental";
 
+import { ParticipantEnrolled, ParticipantReactivated, ParticipantSuspended, ParticipantWithdrawn, } from "./events";
+
 /* ---- 型 ---- */
 
 /**
@@ -200,73 +202,89 @@ export type EnrollParticipantParams = Omit<UnwrapNominalRecord<Participant>, "id
  * 参加者を入会させます。
  *
  * @params props 参加者の入会に必要なパラメータです。
- * @returns 入会する参加者を返します。
+ * @returns 入会する参加者と入会イベントを返します。
  * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
  */
-Participant.enroll = (params: EnrollParticipantParams): Participant => {
-  return Participant({
+Participant.enroll = (params: EnrollParticipantParams): [Participant, ParticipantEnrolled] => {
+  const participant = Participant({
     id: ParticipantId.generate(),
     name: ParticipantName(params.name),
     email: ParticipantEmail(params.email),
     status: ParticipantStatus.ACTIVE,
   });
+
+  const participantEnrolled = ParticipantEnrolled.create(participant);
+
+  return [participant, participantEnrolled];
 };
 
 /**
  * 参加者を休会させます。
  *
  * @params participant 休会させる参加者です。
- * @returns 休会状態の参加者を返します。
+ * @returns 休会状態の参加者と休会イベントを返します。
  * @throws {DomainError} 指定した参加者が在籍中でない場合にスローされます。
  */
-Participant.suspend = (participant: Participant): Participant => {
+Participant.suspend = (participant: Participant): [Participant, ParticipantSuspended] => {
   const notAllowedError = new DomainError("在籍中の参加者のみ休会できます。", {
     code: "SUSPEND_NOT_ALLOWED_FOR_NON_ACTIVE",
   });
   assert(Participant.isActive(participant), notAllowedError);
 
-  return Participant({
+  const suspended = Participant({
     ...participant,
     status: ParticipantStatus.SUSPENDED,
   });
+
+  const participantSuspended = ParticipantSuspended.create(suspended);
+
+  return [suspended, participantSuspended];
 };
 
 /**
  * 参加者を復帰させます。
  *
  * @params participant 復帰させる参加者です。
- * @returns 復帰状態の参加者を返します。
+ * @returns 復帰状態の参加者と復帰イベントを返します。
  * @throws {DomainError} 指定した参加者が休会中でない場合にスローされます。
  */
-Participant.reactivate = (participant: Participant): Participant => {
+Participant.reactivate = (participant: Participant): [Participant, ParticipantReactivated] => {
   const notSuspendedError = new DomainError("休会中の参加者のみ復帰できます。", {
     code: "REACTIVATE_NOT_ALLOWED_FOR_NON_SUSPENDED",
   });
   assert(Participant.isSuspended(participant), notSuspendedError);
 
-  return Participant({
+  const reactivated = Participant({
     ...participant,
     status: ParticipantStatus.ACTIVE,
   });
+
+  const participantReactivated = ParticipantReactivated.create(reactivated);
+
+  return [reactivated, participantReactivated];
 };
 
 /**
  * 参加者を退会させます。
  *
  * @params participant 退会させる参加者です。
- * @returns 退会状態の参加者を返します。
+ * @returns 退会状態の参加者と退会イベントを返します。
  * @throws {DomainError} 指定した参加者が既に退会済みの場合にスローされます。
  */
-Participant.withdraw = (participant: Participant): Participant => {
+Participant.withdraw = (participant: Participant): [Participant, ParticipantWithdrawn] => {
   const alreadyWithdrawnError = new DomainError("既に退会済みです。", {
     code: "ALREADY_WITHDRAWN",
   });
   assert(!Participant.isWithdrawn(participant), alreadyWithdrawnError);
 
-  return Participant({
+  const withdrawn = Participant({
     ...participant,
     status: ParticipantStatus.WITHDRAWN,
   });
+
+  const participantWithdrawn = ParticipantWithdrawn.create(withdrawn);
+
+  return [withdrawn, participantWithdrawn];
 };
 
 /**

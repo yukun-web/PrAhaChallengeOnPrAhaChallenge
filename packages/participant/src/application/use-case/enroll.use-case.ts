@@ -51,11 +51,12 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
   const executeEnrollUseCase = async (params: EnrollParams) => {
     const { name, email } = params;
 
-    const enrolledParticipant = Participant.enroll({
+    const [enrolledParticipant, participantEnrolled] = Participant.enroll({
       name: ParticipantName(name),
       email: ParticipantEmail(email),
     });
 
+    console.log(participantEnrolled); // TODO: イベントバスに乗せる
     await saveParticipant(enrolledParticipant);
   };
 
