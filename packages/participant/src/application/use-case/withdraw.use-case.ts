@@ -58,7 +58,7 @@ export const createWithdrawUseCase = (dependencies: Dependencies): ExecuteWithdr
 
     const [withdrawnParticipant, participantWithdrawn] = Participant.withdraw(participant);
 
-    console.log("event published", participantWithdrawn); // TODO: イベントバスに乗せる
+    console.log("イベントを発行しました。", participantWithdrawn); // TODO: イベントバスに乗せる
     await participantRepository.save(withdrawnParticipant);
   };
 

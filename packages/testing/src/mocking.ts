@@ -1,5 +1,5 @@
-import { vi } from "vitest";
 import * as Fundamental from "@ponp/fundamental";
+import { vi } from "vitest";
 
 /**
  * Fundamental.uuid 関数をスパイし、指定した値を返すようにします。

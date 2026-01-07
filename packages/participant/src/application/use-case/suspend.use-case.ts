@@ -58,7 +58,7 @@ export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspend
 
     const [suspendedParticipant, participantSuspended] = Participant.suspend(participant);
 
-    console.log("event published", participantSuspended); // TODO: イベントバスに乗せる
+    console.log("イベントを発行しました。", participantSuspended); // TODO: イベントバスに乗せる
     await participantRepository.save(suspendedParticipant);
   };
 

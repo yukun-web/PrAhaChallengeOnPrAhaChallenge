@@ -1,11 +1,12 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as process from "node:process";
+
 import { PGlite } from "@electric-sql/pglite";
+import type { AggregateTable, Database } from "@ponp/fundamental";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import * as process from "node:process";
-import * as path from "node:path";
-import * as fs from "node:fs";
-import { eq } from "drizzle-orm";
-import { AggregateTable, Database } from "@ponp/fundamental";
 
 /**
  * 子パッケージのテストからプロジェクトルートのパスを取得します。

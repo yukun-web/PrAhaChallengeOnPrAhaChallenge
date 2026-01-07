@@ -56,7 +56,7 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
       email: ParticipantEmail(email),
     });
 
-    console.log("event published", participantEnrolled); // TODO: イベントバスに乗せる
+    console.log("イベントを発行しました。", participantEnrolled); // TODO: イベントバスに乗せる
     await participantRepository.save(enrolledParticipant);
   };
 

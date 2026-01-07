@@ -7,7 +7,16 @@ import { mockParticipantRepository } from "../../infrastructure/testing";
 import type { ExecuteSuspendUseCase } from "./suspend.use-case";
 import { createSuspendUseCase } from "./suspend.use-case";
 
-describe("createSuspendUseCase", () => {
+describe("参加者休会ユースケース", () => {
+  /**
+   * テストに使用する未存在の参加者 ID です。
+   */
+  const TEST_NOT_FOUND_PARTICIPANT_ID = "2bc35053-b6d1-4f1f-8e8f-fca8b6b55a94";
+
+  /**
+   * テストに使用する不正な参加者 ID です。
+   */
+  const TEST_INVALID_PARTICIPANT_ID = "invalid-uuid";
   /**
    * ユースケースの実行関数です。
    */
@@ -33,14 +42,14 @@ describe("createSuspendUseCase", () => {
   test("存在しない参加者 ID の場合はエラーを返し保存しない", async () => {
     mockParticipantRepository.findById.mockResolvedValue(undefined);
 
-    const act = () => executeUseCase({ participantId: "2bc35053-b6d1-4f1f-8e8f-fca8b6b55a94" });
+    const act = () => executeUseCase({ participantId: TEST_NOT_FOUND_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(mockParticipantRepository.save).not.toHaveBeenCalled();
   });
 
   test("不正な参加者 ID の場合はバリデーションエラーを返し保存しない", async () => {
-    const act = () => executeUseCase({ participantId: "invalid-uuid" });
+    const act = () => executeUseCase({ participantId: TEST_INVALID_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(mockParticipantRepository.save).not.toHaveBeenCalled();

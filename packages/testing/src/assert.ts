@@ -1,6 +1,7 @@
+import type { AggregateTable, Database } from "@ponp/fundamental";
 import { expect } from "vitest";
+
 import { getRecordById } from "./db";
-import { AggregateTable, Database } from "@ponp/fundamental";
 
 /**
  * 値が undefined でないことを検証します。

@@ -1,4 +1,4 @@
-import type { ValidationError } from "./errors.js";
+import type { ValidationError } from "./errors";
 
 /**
  * 条件が真であることを検証します。条件が偽の場合、指定されたメッセージを持つエラーをスローします。

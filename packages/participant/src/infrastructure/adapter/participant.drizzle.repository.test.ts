@@ -8,7 +8,7 @@ import { createDummyParticipant } from "../../domain/testing";
 import { participantsTable } from "../db/schema";
 import { ParticipantDrizzleRepository } from "./participant.drizzle.repository";
 
-describe("ParticipantDrizzleRepository", () => {
+describe("参加者リポジトリ（Drizzle）", () => {
   /**
    * beforeAll でテスト用のインメモリデータベースへ接続されたクライアントが代入されます。
    */
@@ -24,7 +24,7 @@ describe("ParticipantDrizzleRepository", () => {
     repository = ParticipantDrizzleRepository({ db });
   });
 
-  describe("save", () => {
+  describe("保存", () => {
     test("参加者を保存できる", async () => {
       const participant = createDummyParticipant();
 
@@ -46,7 +46,7 @@ describe("ParticipantDrizzleRepository", () => {
     });
   });
 
-  describe("findById", () => {
+  describe("ID 取得", () => {
     test("保存済みの参加者を取得できる", async () => {
       const participant = createDummyParticipant({ id: ParticipantId.generate() });
       await repository.save(participant);

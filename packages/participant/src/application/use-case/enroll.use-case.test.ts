@@ -7,7 +7,7 @@ import { mockParticipantRepository } from "../../infrastructure/testing";
 import type { ExecuteEnrollUseCase } from "./enroll.use-case";
 import { createEnrollUseCase } from "./enroll.use-case";
 
-describe("createEnrollUseCase", () => {
+describe("参加者入会ユースケース", () => {
   /**
    * テストに使用する参加者IDです。
    * テスト中の UUID の生成をスパイして、この値を返すようにします。
@@ -23,6 +23,10 @@ describe("createEnrollUseCase", () => {
    * テストに使用する参加者のメールアドレスです。
    */
   const TEST_PARTICIPANT_EMAIL = "taro@example.com";
+  /**
+   * テストに使用する不正なメールアドレスです。
+   */
+  const TEST_INVALID_EMAIL = "invalid-email";
 
   /**
    * ユースケースの実行関数です。
@@ -48,9 +52,7 @@ describe("createEnrollUseCase", () => {
   });
 
   test("不正なメールアドレスの場合はエラーを返し保存しない", async () => {
-    const INVALID_EMAIL = "invalid-email";
-
-    const act = () => executeUseCase({ name: TEST_PARTICIPANT_NAME, email: INVALID_EMAIL });
+    const act = () => executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_INVALID_EMAIL });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(mockParticipantRepository.save).not.toHaveBeenCalled();

@@ -35,9 +35,7 @@ export type ExecuteReactivateUseCase = (params: ReactivateParams) => Promise<voi
  * @param dependencies 依存関係を指定します。
  * @returns 参加者の復帰ユースケースを返します。
  */
-export const createReactivateUseCase = (
-  dependencies: Dependencies,
-): ExecuteReactivateUseCase => {
+export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReactivateUseCase => {
   const { participantRepository } = dependencies;
 
   /**
@@ -60,7 +58,7 @@ export const createReactivateUseCase = (
 
     const [reactivatedParticipant, participantReactivated] = Participant.reactivate(participant);
 
-    console.log("event published", participantReactivated); // TODO: イベントバスに乗せる
+    console.log("イベントを発行しました。", participantReactivated); // TODO: イベントバスに乗せる
     await participantRepository.save(reactivatedParticipant);
   };
 
