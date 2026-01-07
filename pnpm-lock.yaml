@@ -35,9 +35,15 @@ importers:
 
   apps/web:
     dependencies:
+      drizzle-orm:
+        specifier: ^0.45.1
+        version: 0.45.1(@electric-sql/pglite@0.3.14)(postgres@3.4.8)
       next:
         specifier: ^16.1.1
         version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      postgres:
+        specifier: ^3.4.8
+        version: 3.4.8
       react:
         specifier: ^19.2.3
         version: 19.2.3
