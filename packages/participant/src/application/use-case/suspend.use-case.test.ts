@@ -1,0 +1,59 @@
+import { DomainError, ValidationError } from "@ponp/fundamental";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+import { ParticipantStatus } from "../../domain";
+import { createDummyParticipant } from "../../domain/testing";
+import { mockParticipantRepository } from "../../infrastructure/testing";
+import type { ExecuteSuspendUseCase } from "./suspend.use-case";
+import { createSuspendUseCase } from "./suspend.use-case";
+
+describe("createSuspendUseCase", () => {
+  /**
+   * ユースケースの実行関数です。
+   */
+  let executeUseCase: ExecuteSuspendUseCase;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    executeUseCase = createSuspendUseCase({ participantRepository: mockParticipantRepository });
+  });
+
+  test("参加者を休会状態にして保存する", async () => {
+    const participant = createDummyParticipant({ status: ParticipantStatus.ACTIVE });
+    mockParticipantRepository.findById.mockResolvedValue(participant);
+
+    await executeUseCase({ participantId: participant.id });
+
+    expect(mockParticipantRepository.save).toHaveBeenCalledExactlyOnceWith({
+      ...participant,
+      status: ParticipantStatus.SUSPENDED,
+    });
+  });
+
+  test("存在しない参加者 ID の場合はエラーを返し保存しない", async () => {
+    mockParticipantRepository.findById.mockResolvedValue(undefined);
+
+    const act = () => executeUseCase({ participantId: "2bc35053-b6d1-4f1f-8e8f-fca8b6b55a94" });
+
+    await expect(act).rejects.toBeInstanceOf(DomainError);
+    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+  });
+
+  test("不正な参加者 ID の場合はバリデーションエラーを返し保存しない", async () => {
+    const act = () => executeUseCase({ participantId: "invalid-uuid" });
+
+    await expect(act).rejects.toBeInstanceOf(ValidationError);
+    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+    expect(mockParticipantRepository.findById).not.toHaveBeenCalled();
+  });
+
+  test("在籍中以外の参加者の場合はドメインエラーを返し保存しない", async () => {
+    const participant = createDummyParticipant({ status: ParticipantStatus.SUSPENDED });
+    mockParticipantRepository.findById.mockResolvedValue(participant);
+
+    const act = () => executeUseCase({ participantId: participant.id });
+
+    await expect(act).rejects.toBeInstanceOf(DomainError);
+    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+  });
+});
