@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
-import { mockParticipantRepository } from "../../infrastructure/testing";
+import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteSuspendUseCase } from "./suspend.use-case";
 import { createSuspendUseCase } from "./suspend.use-case";
 
@@ -24,45 +24,45 @@ describe("参加者休会ユースケース", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    executeUseCase = createSuspendUseCase({ participantRepository: mockParticipantRepository });
+    executeUseCase = createSuspendUseCase({ participantRepository: participantRepositoryMock });
   });
 
   test("参加者を休会状態にして保存する", async () => {
     const participant = createDummyParticipant({ status: ParticipantStatus.ACTIVE });
-    mockParticipantRepository.findById.mockResolvedValue(participant);
+    participantRepositoryMock.findById.mockResolvedValue(participant);
 
     await executeUseCase({ participantId: participant.id });
 
-    expect(mockParticipantRepository.save).toHaveBeenCalledExactlyOnceWith({
+    expect(participantRepositoryMock.save).toHaveBeenCalledExactlyOnceWith({
       ...participant,
       status: ParticipantStatus.SUSPENDED,
     });
   });
 
   test("存在しない参加者 ID の場合はエラーを返し保存しない", async () => {
-    mockParticipantRepository.findById.mockResolvedValue(undefined);
+    participantRepositoryMock.findById.mockResolvedValue(undefined);
 
     const act = () => executeUseCase({ participantId: TEST_NOT_FOUND_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
-    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+    expect(participantRepositoryMock.save).not.toHaveBeenCalled();
   });
 
   test("不正な参加者 ID の場合はバリデーションエラーを返し保存しない", async () => {
     const act = () => executeUseCase({ participantId: TEST_INVALID_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
-    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
-    expect(mockParticipantRepository.findById).not.toHaveBeenCalled();
+    expect(participantRepositoryMock.save).not.toHaveBeenCalled();
+    expect(participantRepositoryMock.findById).not.toHaveBeenCalled();
   });
 
   test("在籍中以外の参加者の場合はドメインエラーを返し保存しない", async () => {
     const participant = createDummyParticipant({ status: ParticipantStatus.SUSPENDED });
-    mockParticipantRepository.findById.mockResolvedValue(participant);
+    participantRepositoryMock.findById.mockResolvedValue(participant);
 
     const act = () => executeUseCase({ participantId: participant.id });
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
-    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+    expect(participantRepositoryMock.save).not.toHaveBeenCalled();
   });
 });

@@ -8,7 +8,8 @@
   "types": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ponp/fundamental": "workspace:*",

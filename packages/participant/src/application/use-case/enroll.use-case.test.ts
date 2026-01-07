@@ -3,7 +3,7 @@ import { spyUuid } from "@ponp/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
-import { mockParticipantRepository } from "../../infrastructure/testing";
+import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteEnrollUseCase } from "./enroll.use-case";
 import { createEnrollUseCase } from "./enroll.use-case";
 
@@ -35,7 +35,7 @@ describe("参加者入会ユースケース", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    executeUseCase = createEnrollUseCase({ participantRepository: mockParticipantRepository });
+    executeUseCase = createEnrollUseCase({ participantRepository: participantRepositoryMock });
   });
 
   test("参加者の入会時にリポジトリへ保存する", async () => {
@@ -43,7 +43,7 @@ describe("参加者入会ユースケース", () => {
 
     await executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_PARTICIPANT_EMAIL });
 
-    expect(mockParticipantRepository.save).toHaveBeenCalledExactlyOnceWith({
+    expect(participantRepositoryMock.save).toHaveBeenCalledExactlyOnceWith({
       id: TEST_PARTICIPANT_ID,
       name: TEST_PARTICIPANT_NAME,
       email: TEST_PARTICIPANT_EMAIL,
@@ -55,6 +55,6 @@ describe("参加者入会ユースケース", () => {
     const act = () => executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_INVALID_EMAIL });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
-    expect(mockParticipantRepository.save).not.toHaveBeenCalled();
+    expect(participantRepositoryMock.save).not.toHaveBeenCalled();
   });
 });

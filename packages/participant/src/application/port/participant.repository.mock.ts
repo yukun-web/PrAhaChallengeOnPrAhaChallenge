@@ -1,12 +1,12 @@
 import type { Mocked } from "vitest";
 import { vi } from "vitest";
 
-import type { ParticipantRepository } from "../../application/port/participant.repository";
+import type { ParticipantRepository } from "./participant.repository";
 
 /**
  * 参加者リポジトリのモック実装です。
  */
-export const mockParticipantRepository: Mocked<ParticipantRepository> = {
+export const participantRepositoryMock: Mocked<ParticipantRepository> = {
   /**
    * 参加者を保存します。
    */
