@@ -1,4 +1,4 @@
-import { generateId } from "@scs/common";
+import { uuid } from "@ponp/fundamental";
 import type { z } from "zod";
 
 /**
@@ -37,7 +37,7 @@ export const createEventConstructor = <Type extends string, T extends z.ZodType>
 
     return {
       type,
-      id: generateId(),
+      id: uuid(),
       payload: validatedPayload,
     };
   };

@@ -1,0 +1,33 @@
+{
+  "name": "@ponp/event-bus",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./next": "./next/index.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.4.1",
+    "@ponp/fundamental": "workspace:*",
+    "@upstash/qstash": "^2.8.4",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@ponp/eslint-config": "workspace:*",
+    "@ponp/typescript-config": "workspace:*",
+    "eslint": "^9.39.2",
+    "next": "^16.1.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "peerDependencies": {
+    "next": "^16.1.1"
+  }
+}

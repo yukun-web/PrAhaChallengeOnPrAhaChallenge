@@ -1,0 +1,5 @@
+{
+  "extends": "@ponp/typescript-config/service.json",
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.test.ts", "node_modules"]
+}
