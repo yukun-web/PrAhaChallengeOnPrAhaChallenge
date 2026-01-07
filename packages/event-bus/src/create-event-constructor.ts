@@ -2,7 +2,7 @@ import { uuid } from "@ponp/fundamental";
 import type { z } from "zod";
 
 /**
- * イベントの型定義
+ * イベントの型定義です。
  */
 export type Event<Type extends string = string, Payload = unknown> = {
   type: Type;
@@ -11,7 +11,7 @@ export type Event<Type extends string = string, Payload = unknown> = {
 };
 
 /**
- * イベントコンストラクタの型定義
+ * イベントコンストラクタの型定義です。
  */
 export type EventConstructor<E extends Event = Event> = {
   (payload: E["payload"]): E;
@@ -22,9 +22,9 @@ export type EventConstructor<E extends Event = Event> = {
 /**
  * イベントのコンストラクタを作成するヘルパー関数です。
  *
- * @param type イベントのタイプ
- * @param schema イベントのペイロードのスキーマ
- * @returns イベントを生成する関数
+ * @param type イベントのタイプを指定します。
+ * @param schema イベントのペイロードのスキーマを指定します。
+ * @returns イベントを生成する関数を返します。
  */
 export const createEventConstructor = <Type extends string, T extends z.ZodType>(
   type: Type,

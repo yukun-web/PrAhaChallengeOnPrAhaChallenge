@@ -1,29 +1,41 @@
 import type { Event, EventConstructor } from "./create-event-constructor";
 
 /**
- * イベントハンドラの型定義
+ * イベントハンドラの型定義です。
  */
 export type EventHandler<E extends Event = Event> = (event: E) => unknown;
 
 /**
- * イベントハンドラのエントリーの型定義
+ * イベントハンドラのエントリーの型定義です。
  */
 export type EventHandlerEntry = {
+  /**
+   * 対象のイベントコンストラクタです。
+   */
   eventConstructor: EventConstructor;
+  /**
+   * イベントハンドラの名前です。
+   */
   handlerName: string;
+  /**
+   * イベントハンドラです。
+   */
   handler: EventHandler;
+  /**
+   * イベントの処理対象となるキューの名前です。
+   */
   queueName: string;
 };
 
 /**
- * ハンドラレジストリの型定義
+ * ハンドラレジストリの型定義です。
  */
 export type HandlerRegistry = EventHandlerEntry[];
 
 /**
  * 空のハンドラレジストリを作成します。
  *
- * @returns 空のハンドラレジストリ
+ * @returns 空のハンドラレジストリを返します。
  */
 export const createHandlerRegistry = (): EventHandlerEntry[] => {
   return [];
@@ -32,11 +44,12 @@ export const createHandlerRegistry = (): EventHandlerEntry[] => {
 /**
  * イベントコンストラクタとハンドラ名を指定してハンドラを登録します。
  *
- * @param registry ハンドラレジストリ
- * @param eventConstructor イベントコンストラクタ
- * @param handlerName ハンドラ名
- * @param handler イベントハンドラ
- * @param queueName イベントを受け取るキューの名前（指定しない場合はイベント名とハンドラ名から自動生成されます）
+ * @param registry ハンドラレジストリを指定します。
+ * @param eventConstructor イベントコンストラクタを指定します。
+ * @param handlerName ハンドラ名を指定します。
+ * @param handler イベントハンドラを指定します。
+ * @param queueName イベントを受け取るキューの名前を指定します（指定しない場合はイベント名とハンドラ名から自動生成されます）。
+ * @returns 何も返しません。
  */
 export const registerHandler = <Type extends string, Payload>(
   registry: HandlerRegistry,
@@ -65,8 +78,10 @@ export const registerHandler = <Type extends string, Payload>(
 
 /**
  * イベントのコンストラクタを指定して、登録されているハンドラ名のリストを取得します。
- * @param registry
- * @param eventConstructor
+ *
+ * @param registry ハンドラレジストリを指定します。
+ * @param eventConstructor イベントコンストラクタを指定します。
+ * @returns ハンドラ名のリストを返します。
  */
 export const getHandlerNames = <Type extends string, Payload>(
   registry: HandlerRegistry,
@@ -91,7 +106,7 @@ export const getHandlerNames = <Type extends string, Payload>(
  * @param registry ハンドラレジストリを指定します。
  * @param eventConstructor 対象のイベントコンストラクタを指定します。
  * @param handlerName 対象のハンドラ名を指定します。
- * @return キューの名前を返します。存在しない場合はイベント名とハンドラ名から自動生成します。
+ * @returns キューの名前を返します。存在しない場合はイベント名とハンドラ名から自動生成します。
  */
 export const getQueueName = <Type extends string, Payload>(
   registry: HandlerRegistry,
@@ -108,10 +123,10 @@ export const getQueueName = <Type extends string, Payload>(
 /**
  * イベントとハンドラ名を指定して特定のハンドラを取得します。
  *
- * @param registry ハンドラレジストリ
- * @param eventConstructor イベントコンストラクタ
- * @param handlerName ハンドラ名
- * @returns イベントハンドラ（存在しない場合はundefined）
+ * @param registry ハンドラレジストリを指定します。
+ * @param eventConstructor イベントコンストラクタを指定します。
+ * @param handlerName ハンドラ名を指定します。
+ * @returns イベントハンドラを返します（存在しない場合は undefined を返します）。
  */
 export const getHandler = <Type extends string, Payload>(
   registry: HandlerRegistry,
@@ -134,9 +149,9 @@ export const getHandler = <Type extends string, Payload>(
 /**
  * イベント名を指定してイベントコンストラクタを取得します。
  *
- * @param registry ハンドラレジストリ
- * @param eventType イベント名
- * @returns イベントコンストラクタ（存在しない場合はundefined）
+ * @param registry ハンドラレジストリを指定します。
+ * @param eventType イベント名を指定します。
+ * @returns イベントコンストラクタを返します（存在しない場合は undefined を返します）。
  */
 export const getEventConstructor = <Type extends string = string, Payload = unknown>(
   registry: HandlerRegistry,

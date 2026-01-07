@@ -1,6 +1,6 @@
-# @scs/event-bus
+# @ponp/event-bus
 
-@scs/event-bus は、ドメインイベントを用いてコンテキスト間の連携を行うためのモジュールです。  
+@ponp/event-bus は、ドメインイベントを用いてコンテキスト間の連携を行うためのモジュールです。  
 ドメインイベントを発行し、リスナーがそれを購読することで非同期な処理を実現します。
 
 ## 使い方
@@ -10,7 +10,7 @@
 スキーマ定義には Zod を使用します。
 
 ```typescript
-import { createEventConstructor } from "@scs/event-bus";
+import { createEventConstructor } from "@ponp/event-bus";
 import { z } from "zod";
 
 const sampleEventSchema = z.object({
@@ -34,16 +34,16 @@ console.log(event.payload); // { text: "Hello, World!" }
 ### イベントバスの初期化
 
 ```typescript
-import { initEventBus } from "@scs/event-bus";
+import { initEventBus } from "@ponp/event-bus";
 
-const eventBus = initEventBus();
+const eventBus = initEventBus({ authToken: process.env.EVENT_BUS_AUTH_TOKEN ?? "" });
 ```
 
 ### イベント購読用のエンドポイントを作成
 
 ```typescript
 // app/api/event-bus/route.ts
-import { createHandlerRoute } from "@scs/event-bus/next";
+import { createHandlerRoute } from "@ponp/event-bus/next";
 import { eventBus } from "@/app/bootstrap";
 
 export const POST = createHandlerRoute(eventBus);
@@ -52,7 +52,7 @@ export const POST = createHandlerRoute(eventBus);
 ### イベントの発行
 
 ```typescript
-import { publish } from "@scs/event-bus";
+import { publish } from "@ponp/event-bus";
 import { eventBus } from "@/app/bootstrap";
 
 import { SampleEvent } from "./events";
@@ -65,7 +65,7 @@ await publish(eventBus, event);
 ### イベントの購読
 
 ```typescript
-import { subscribe } from "@scs/event-bus";
+import { subscribe } from "@ponp/event-bus";
 import { eventBus } from "@/app/bootstrap";
 
 import { SampleEvent } from "./events";

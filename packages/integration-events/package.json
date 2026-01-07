@@ -1,33 +1,25 @@
 {
-  "name": "@ponp/event-bus",
+  "name": "@ponp/integration-events",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./next": "./src/next/index.ts"
+    "./participant": "./src/participant.ts"
   },
   "license": "MIT",
   "scripts": {
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx",
-    "test": "vitest run"
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
-    "@date-fns/tz": "^1.4.1",
-    "@ponp/fundamental": "workspace:*",
-    "@upstash/qstash": "^2.8.4",
+    "@ponp/event-bus": "workspace:*",
     "zod": "^4.3.5"
   },
   "devDependencies": {
     "@ponp/eslint-config": "workspace:*",
     "@ponp/typescript-config": "workspace:*",
     "eslint": "^9.39.2",
-    "next": "^16.1.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
-  },
-  "peerDependencies": {
-    "next": "^16.1.1"
+    "typescript": "^5.9.3"
   }
 }

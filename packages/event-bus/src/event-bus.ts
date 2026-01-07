@@ -7,18 +7,30 @@ import { getQueueName } from "./handler-registry";
 import { createHandlerRegistry, getHandlerNames, registerHandler } from "./handler-registry";
 
 /**
- * イベントバスの初期化オプション
+ * イベントバスの初期化オプションです。
  */
 export type EventBusOptions = {
+  /**
+   * イベントバスの認証トークンです。
+   */
   authToken: string;
 };
 
 /**
- * イベントバスの型定義
+ * イベントバスの型定義です。
  */
 export type EventBus = {
+  /**
+   * イベントハンドラの登録情報です。
+   */
   handlerRegistry: HandlerRegistry;
+  /**
+   * イベントバスの認証トークンです。
+   */
   authToken: string;
+  /**
+   * QStash クライアントです。
+   */
   qstash: Client;
 };
 
@@ -30,13 +42,15 @@ declare global {
  * イベントバスを初期化します。
  * HandlerRegistryを初期化し、それを保持したオブジェクトを返します。
  *
- * @param options イベントバスの初期化オプション
- * @returns 初期化されたイベントバス
+ * @param options イベントバスの初期化オプションを指定します。
+ * @returns 初期化されたイベントバスを返します。
  */
 export const initEventBus = (options: EventBusOptions): EventBus => {
-  const qstash = global.__scs_qstash ?? new Client({
-    token: process.env.QSTASH_TOKEN,
-  });
+  const qstash =
+    global.__scs_qstash ??
+    new Client({
+      token: process.env.QSTASH_TOKEN,
+    });
   global.__scs_qstash = qstash;
 
   return {
@@ -50,11 +64,12 @@ export const initEventBus = (options: EventBusOptions): EventBus => {
  * イベントを購読します。
  * イベントコンストラクタとハンドラ名を指定してハンドラを登録します。
  *
- * @param eventBus イベントバス
- * @param eventConstructor イベントコンストラクタ
- * @param handlerName ハンドラ名
- * @param handler イベントハンドラ
- * @param queueName イベントキューの名前
+ * @param eventBus イベントバスを指定します。
+ * @param eventConstructor イベントコンストラクタを指定します。
+ * @param handlerName ハンドラ名を指定します。
+ * @param handler イベントハンドラを指定します。
+ * @param queueName イベントキューの名前を指定します。
+ * @returns 何も返しません。
  */
 export const subscribe = <Type extends string, Payload>(
   eventBus: EventBus,
@@ -70,8 +85,9 @@ export const subscribe = <Type extends string, Payload>(
  * イベントを発行します。
  * 登録されているハンドラに対してAPIリクエストを行います。
  *
- * @param eventBus イベントバス
- * @param event イベント
+ * @param eventBus イベントバスを指定します。
+ * @param event イベントを指定します。
+ * @returns 何も返しません。
  */
 export const publish = async <Type extends string, Payload>(
   eventBus: EventBus,
@@ -108,10 +124,7 @@ export const publish = async <Type extends string, Payload>(
         headers,
         body: event,
       });
-
-      console.log(`[Published] ${TZDate.tz("Asia/Tokyo").toISOString()} ${eventType} -> ${handlerName}`);
-    }
-    catch (e) {
+    } catch (e) {
       console.error(`[Error] ${TZDate.tz("Asia/Tokyo").toISOString()} ${urlString}`, e);
     }
   });
