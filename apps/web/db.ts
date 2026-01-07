@@ -10,6 +10,24 @@ if (!postgresUrl) {
 }
 
 /**
+ * ローカルの PostgreSQL かどうかを判定します。
+ */
+const isLocalPostgresUrl = (urlString: string): boolean => {
+  try {
+    const url = new URL(urlString);
+    const host = url.hostname;
+    return host === "localhost" || host === "127.0.0.1" || host === "host.docker.internal";
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * ローカルの PostgreSQL かどうかのフラグです。
+ */
+const isLocal = isLocalPostgresUrl(postgresUrl);
+
+/**
  * Drizzle のデータベースインスタンス型です。
  */
 type Database = ReturnType<typeof drizzle>;
@@ -34,10 +52,11 @@ export const createDb = (): Database => {
   const client = postgres(postgresUrl, {
     // Supabase (PgBouncer) は Prepared Statement をサポートしないため無効化します。
     prepare: false,
-    ssl: "require",
+    ssl: isLocal ? false : "require",
   });
 
   const db = drizzle({ client });
   globalThis.__pompDb = db;
+
   return db;
 };

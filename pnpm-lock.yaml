@@ -54,6 +54,9 @@ importers:
       '@ponp/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@ponp/participant':
+        specifier: workspace:*
+        version: link:../../packages/participant
       '@ponp/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
