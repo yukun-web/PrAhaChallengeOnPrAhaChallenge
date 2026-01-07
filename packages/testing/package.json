@@ -12,12 +12,12 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.3.10",
+    "@electric-sql/pglite": "^0.3.14",
     "@ponp/fundamental": "workspace:*",
     "@ponp/typescript-config": "workspace:*",
-    "drizzle-orm": "^0.44.6",
-    "eslint": "^9.13.0",
+    "drizzle-orm": "^0.45.1",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.16"
   }
 }

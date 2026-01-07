@@ -13,12 +13,12 @@
   "dependencies": {
     "@ponp/fundamental": "workspace:*",
     "@ponp/testing": "workspace:*",
-    "drizzle-orm": "^0.44.6"
+    "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {
     "@ponp/typescript-config": "workspace:*",
-    "eslint": "^9.13.0",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.16"
   }
 }

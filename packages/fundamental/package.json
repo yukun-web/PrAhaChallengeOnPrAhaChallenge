@@ -13,11 +13,11 @@
   },
   "devDependencies": {
     "@ponp/typescript-config": "workspace:*",
-    "eslint": "^9.13.0",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.6",
+    "drizzle-orm": "^0.45.1",
     "uuid": "^13.0.0"
   }
 }
