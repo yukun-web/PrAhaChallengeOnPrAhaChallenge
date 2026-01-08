@@ -11,9 +11,9 @@ import {
   type ExecuteSuspendUseCase,
   type ExecuteWithdrawUseCase,
 } from "./application";
-import type { ParticipantEventPublisher } from "./application/port/event-publisher.port";
+import type { EventPublisher } from "./application/port/event-publisher";
 import type { ParticipantRepository } from "./application/port/participant.repository";
-import { ParticipantDrizzleRepository, ParticipantEventBusPublisher } from "./infrastructure";
+import { ParticipantDrizzleRepository, PonpEventBusEventPublisher } from "./infrastructure";
 
 /**
  * 参加者モジュールの依存関係です。
@@ -42,7 +42,7 @@ export type ParticipantModule = {
   /**
    * 参加者イベントを発行するパブリッシャーです。
    */
-  participantEventPublisher: ParticipantEventPublisher;
+  eventPublisher: EventPublisher;
 };
 
 /**
@@ -56,11 +56,11 @@ export const createParticipantModule = (
 ): ParticipantModule => {
   const { db, eventBus } = dependencies;
   const participantRepository = ParticipantDrizzleRepository({ db });
-  const participantEventPublisher = ParticipantEventBusPublisher({ eventBus });
+  const eventPublisher = PonpEventBusEventPublisher({ eventBus });
 
   return {
     participantRepository,
-    participantEventPublisher,
+    eventPublisher,
   };
 };
 
@@ -79,7 +79,7 @@ export const enrollNewParticipant = (
 ): ReturnType<ExecuteEnrollUseCase> => {
   const executeEnrollUseCase = createEnrollUseCase({
     participantRepository: module.participantRepository,
-    participantEventPublisher: module.participantEventPublisher,
+    eventPublisher: module.eventPublisher,
   });
 
   return executeEnrollUseCase(params);
@@ -101,7 +101,7 @@ export const suspendParticipant = (
 ): ReturnType<ExecuteSuspendUseCase> => {
   const executeSuspendUseCase = createSuspendUseCase({
     participantRepository: module.participantRepository,
-    participantEventPublisher: module.participantEventPublisher,
+    eventPublisher: module.eventPublisher,
   });
 
   return executeSuspendUseCase(params);
@@ -123,7 +123,7 @@ export const reactivateParticipant = (
 ): ReturnType<ExecuteReactivateUseCase> => {
   const executeReactivateUseCase = createReactivateUseCase({
     participantRepository: module.participantRepository,
-    participantEventPublisher: module.participantEventPublisher,
+    eventPublisher: module.eventPublisher,
   });
 
   return executeReactivateUseCase(params);
@@ -145,7 +145,7 @@ export const withdrawParticipant = (
 ): ReturnType<ExecuteWithdrawUseCase> => {
   const executeWithdrawUseCase = createWithdrawUseCase({
     participantRepository: module.participantRepository,
-    participantEventPublisher: module.participantEventPublisher,
+    eventPublisher: module.eventPublisher,
   });
 
   return executeWithdrawUseCase(params);

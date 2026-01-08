@@ -1,7 +1,7 @@
 import { DomainError } from "@ponp/fundamental";
 
 import { Participant, ParticipantId } from "../../domain";
-import type { ParticipantEventPublisher } from "../port/event-publisher.port";
+import type { EventPublisher } from "../port/event-publisher";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -16,9 +16,9 @@ type Dependencies = {
 
   /**
    * 参加者イベントを発行するパブリッシャーです。
-   * @see ParticipantEventPublisher
+   * @see EventPublisher
    */
-  participantEventPublisher: ParticipantEventPublisher;
+  eventPublisher: EventPublisher;
 };
 
 /**
@@ -43,7 +43,7 @@ export type ExecuteSuspendUseCase = (params: SuspendParams) => Promise<void>;
  * @returns 参加者の休会ユースケースを返します。
  */
 export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspendUseCase => {
-  const { participantRepository, participantEventPublisher } = dependencies;
+  const { participantRepository, eventPublisher } = dependencies;
 
   /**
    * 参加者の休会を扱うユースケースです。
@@ -66,7 +66,7 @@ export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspend
     const [suspendedParticipant, participantSuspended] = Participant.suspend(participant);
 
     await participantRepository.save(suspendedParticipant);
-    await participantEventPublisher.publishSuspended(participantSuspended);
+    await eventPublisher.publishSuspended(participantSuspended);
   };
 
   return executeSuspendUseCase;

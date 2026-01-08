@@ -1,2 +1,2 @@
 export { ParticipantDrizzleRepository } from "./adapter/participant.drizzle.repository";
-export { ParticipantEventBusPublisher } from "./adapter/participant.event-bus.publisher";
+export { PonpEventBusEventPublisher } from "./adapter/ponp-event-bus.event-publisher";

@@ -8,7 +8,7 @@ import type {
 /**
  * 参加者ドメインイベントを発行するポートです。
  */
-export type ParticipantEventPublisher = {
+export type EventPublisher = {
   /**
    * 参加者入会イベントを発行します。
    *

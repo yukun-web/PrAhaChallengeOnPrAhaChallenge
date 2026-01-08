@@ -1,7 +1,7 @@
 import { DomainError } from "@ponp/fundamental";
 
 import { Participant, ParticipantId } from "../../domain";
-import type { ParticipantEventPublisher } from "../port/event-publisher.port";
+import type { EventPublisher } from "../port/event-publisher";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -16,9 +16,9 @@ type Dependencies = {
 
   /**
    * 参加者イベントを発行するパブリッシャーです。
-   * @see ParticipantEventPublisher
+   * @see EventPublisher
    */
-  participantEventPublisher: ParticipantEventPublisher;
+  eventPublisher: EventPublisher;
 };
 
 /**
@@ -43,7 +43,7 @@ export type ExecuteReactivateUseCase = (params: ReactivateParams) => Promise<voi
  * @returns 参加者の復帰ユースケースを返します。
  */
 export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReactivateUseCase => {
-  const { participantRepository, participantEventPublisher } = dependencies;
+  const { participantRepository, eventPublisher } = dependencies;
 
   /**
    * 参加者の復帰を扱うユースケースです。
@@ -66,7 +66,7 @@ export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReac
     const [reactivatedParticipant, participantReactivated] = Participant.reactivate(participant);
 
     await participantRepository.save(reactivatedParticipant);
-    await participantEventPublisher.publishReactivated(participantReactivated);
+    await eventPublisher.publishReactivated(participantReactivated);
   };
 
   return executeReactivateUseCase;

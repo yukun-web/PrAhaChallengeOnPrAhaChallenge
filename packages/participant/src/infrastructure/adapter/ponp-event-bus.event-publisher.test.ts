@@ -9,7 +9,7 @@ import type {
   ParticipantWithdrawn,
 } from "../../domain";
 import { ParticipantId, ParticipantName } from "../../domain";
-import { ParticipantEventBusPublisher } from "./participant.event-bus.publisher";
+import { PonpEventBusEventPublisher } from "./ponp-event-bus.event-publisher";
 
 vi.mock("@ponp/event-bus", () => ({
   publish: vi.fn(),
@@ -46,7 +46,7 @@ import {
   ParticipantWithdrawnEvent,
 } from "@ponp/integration-events";
 
-describe("ParticipantEventBusPublisher", () => {
+describe("PonpEventBusEventPublisher", () => {
   /**
    * テスト用の参加者 ID です。
    */
@@ -73,7 +73,7 @@ describe("ParticipantEventBusPublisher", () => {
 
   describe("publishEnrolled", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantEnrolled = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -97,7 +97,7 @@ describe("ParticipantEventBusPublisher", () => {
 
     test("発行に失敗した場合は InfrastructureError をスローする", async () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantEnrolled = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -112,7 +112,7 @@ describe("ParticipantEventBusPublisher", () => {
 
   describe("publishSuspended", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantSuspended = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -136,7 +136,7 @@ describe("ParticipantEventBusPublisher", () => {
 
     test("発行に失敗した場合は InfrastructureError をスローする", async () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantSuspended = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -151,7 +151,7 @@ describe("ParticipantEventBusPublisher", () => {
 
   describe("publishReactivated", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantReactivated = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -175,7 +175,7 @@ describe("ParticipantEventBusPublisher", () => {
 
     test("発行に失敗した場合は InfrastructureError をスローする", async () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantReactivated = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -190,7 +190,7 @@ describe("ParticipantEventBusPublisher", () => {
 
   describe("publishWithdrawn", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantWithdrawn = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
@@ -214,7 +214,7 @@ describe("ParticipantEventBusPublisher", () => {
 
     test("発行に失敗した場合は InfrastructureError をスローする", async () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
-      const publisher = ParticipantEventBusPublisher({ eventBus: mockEventBus });
+      const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantWithdrawn = {
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
-import { participantEventPublisherMock } from "../port/event-publisher.port.mock";
+import { eventPublisherMock } from "../port/event-publisher.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteReactivateUseCase } from "./reactivate.use-case";
 import { createReactivateUseCase } from "./reactivate.use-case";
@@ -27,7 +27,7 @@ describe("参加者復帰ユースケース", () => {
     vi.clearAllMocks();
     executeUseCase = createReactivateUseCase({
       participantRepository: participantRepositoryMock,
-      participantEventPublisher: participantEventPublisherMock,
+      eventPublisher: eventPublisherMock,
     });
   });
 
@@ -49,7 +49,7 @@ describe("参加者復帰ユースケース", () => {
 
     await executeUseCase({ participantId: participant.id });
 
-    expect(participantEventPublisherMock.publishReactivated).toHaveBeenCalledExactlyOnceWith(
+    expect(eventPublisherMock.publishReactivated).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         participantId: participant.id,
         name: participant.name,
@@ -65,7 +65,7 @@ describe("参加者復帰ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 
   test("不正な参加者 ID の場合はバリデーションエラーを返し保存もイベント発行もしない", async () => {
@@ -74,7 +74,7 @@ describe("参加者復帰ユースケース", () => {
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
     expect(participantRepositoryMock.findById).not.toHaveBeenCalled();
-    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 
   test("休会中以外の参加者の場合はドメインエラーを返し保存もイベント発行もしない", async () => {
@@ -85,6 +85,6 @@ describe("参加者復帰ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 });

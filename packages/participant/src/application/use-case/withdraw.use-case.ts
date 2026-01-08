@@ -1,7 +1,7 @@
 import { DomainError } from "@ponp/fundamental";
 
 import { Participant, ParticipantId } from "../../domain";
-import type { ParticipantEventPublisher } from "../port/event-publisher.port";
+import type { EventPublisher } from "../port/event-publisher";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -16,9 +16,9 @@ type Dependencies = {
 
   /**
    * 参加者イベントを発行するパブリッシャーです。
-   * @see ParticipantEventPublisher
+   * @see EventPublisher
    */
-  participantEventPublisher: ParticipantEventPublisher;
+  eventPublisher: EventPublisher;
 };
 
 /**
@@ -43,7 +43,7 @@ export type ExecuteWithdrawUseCase = (params: WithdrawParams) => Promise<void>;
  * @returns 参加者の退会ユースケースを返します。
  */
 export const createWithdrawUseCase = (dependencies: Dependencies): ExecuteWithdrawUseCase => {
-  const { participantRepository, participantEventPublisher } = dependencies;
+  const { participantRepository, eventPublisher } = dependencies;
 
   /**
    * 参加者の退会を扱うユースケースです。
@@ -66,7 +66,7 @@ export const createWithdrawUseCase = (dependencies: Dependencies): ExecuteWithdr
     const [withdrawnParticipant, participantWithdrawn] = Participant.withdraw(participant);
 
     await participantRepository.save(withdrawnParticipant);
-    await participantEventPublisher.publishWithdrawn(participantWithdrawn);
+    await eventPublisher.publishWithdrawn(participantWithdrawn);
   };
 
   return executeWithdrawUseCase;

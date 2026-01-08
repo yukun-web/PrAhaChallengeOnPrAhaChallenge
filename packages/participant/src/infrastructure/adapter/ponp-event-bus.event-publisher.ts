@@ -8,7 +8,7 @@ import {
   ParticipantWithdrawnEvent,
 } from "@ponp/integration-events";
 
-import type { ParticipantEventPublisher } from "../../application/port/event-publisher.port";
+import type { EventPublisher } from "../../application/port/event-publisher";
 import type {
   ParticipantEnrolled,
   ParticipantReactivated,
@@ -19,7 +19,7 @@ import type {
 /**
  * イベントバスアダプタの依存関係です。
  */
-type ParticipantEventBusPublisherDependencies = {
+type PonpEventBusEventPublisherDependencies = {
   /**
    * イベントバスのインスタンスです。
    */
@@ -32,9 +32,9 @@ type ParticipantEventBusPublisherDependencies = {
  * @param dependencies 依存関係を指定します。
  * @returns 参加者イベント発行ポートの実装を返します。
  */
-export const ParticipantEventBusPublisher = (
-  dependencies: ParticipantEventBusPublisherDependencies,
-): ParticipantEventPublisher => {
+export const PonpEventBusEventPublisher = (
+  dependencies: PonpEventBusEventPublisherDependencies,
+): EventPublisher => {
   const { eventBus } = dependencies;
 
   return {

@@ -3,7 +3,7 @@ import { spyUuid } from "@ponp/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
-import { participantEventPublisherMock } from "../port/event-publisher.port.mock";
+import { eventPublisherMock } from "../port/event-publisher.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteEnrollUseCase } from "./enroll.use-case";
 import { createEnrollUseCase } from "./enroll.use-case";
@@ -38,7 +38,7 @@ describe("参加者入会ユースケース", () => {
     vi.clearAllMocks();
     executeUseCase = createEnrollUseCase({
       participantRepository: participantRepositoryMock,
-      participantEventPublisher: participantEventPublisherMock,
+      eventPublisher: eventPublisherMock,
     });
   });
 
@@ -60,7 +60,7 @@ describe("参加者入会ユースケース", () => {
 
     await executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_PARTICIPANT_EMAIL });
 
-    expect(participantEventPublisherMock.publishEnrolled).toHaveBeenCalledExactlyOnceWith(
+    expect(eventPublisherMock.publishEnrolled).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         participantId: TEST_PARTICIPANT_ID,
         name: TEST_PARTICIPANT_NAME,
@@ -74,6 +74,6 @@ describe("参加者入会ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(participantEventPublisherMock.publishEnrolled).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publishEnrolled).not.toHaveBeenCalled();
   });
 });
