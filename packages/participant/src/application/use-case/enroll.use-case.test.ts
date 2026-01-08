@@ -60,7 +60,7 @@ describe("参加者入会ユースケース", () => {
 
     await executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_PARTICIPANT_EMAIL });
 
-    expect(eventPublisherMock.publishEnrolled).toHaveBeenCalledExactlyOnceWith(
+    expect(eventPublisherMock.publish).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         participantId: TEST_PARTICIPANT_ID,
         name: TEST_PARTICIPANT_NAME,
@@ -74,6 +74,6 @@ describe("参加者入会ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(eventPublisherMock.publishEnrolled).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });
 });

@@ -66,7 +66,7 @@ export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspend
     const [suspendedParticipant, participantSuspended] = Participant.suspend(participant);
 
     await participantRepository.save(suspendedParticipant);
-    await eventPublisher.publishSuspended(participantSuspended);
+    await eventPublisher.publish(participantSuspended);
   };
 
   return executeSuspendUseCase;

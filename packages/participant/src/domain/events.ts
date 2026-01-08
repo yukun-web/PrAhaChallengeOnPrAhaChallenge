@@ -3,12 +3,29 @@ import type { UnwrapNominalRecord } from "@ponp/fundamental";
 import type { Participant } from "./participant";
 import { ParticipantId, ParticipantName } from "./participant";
 
+/* ---- イベントタイプ定数 ---- */
+
+/**
+ * 参加者ドメインイベントのタイプを表す定数です。
+ */
+export const ParticipantEventType = {
+  ENROLLED: "PARTICIPANT_ENROLLED",
+  SUSPENDED: "PARTICIPANT_SUSPENDED",
+  REACTIVATED: "PARTICIPANT_REACTIVATED",
+  WITHDRAWN: "PARTICIPANT_WITHDRAWN",
+} as const;
+
 /* ---- 型 ---- */
 
 /**
  * 新しい参加者が入会したことを表すイベントです。
  */
 export type ParticipantEnrolled = {
+  /**
+   * イベントのタイプです。
+   */
+  type: typeof ParticipantEventType.ENROLLED;
+
   /**
    * 入会した参加者の識別子です。
    * @see ParticipantId
@@ -32,6 +49,11 @@ export type ParticipantEnrolled = {
  */
 export type ParticipantSuspended = {
   /**
+   * イベントのタイプです。
+   */
+  type: typeof ParticipantEventType.SUSPENDED;
+
+  /**
    * 休会した参加者の識別子です。
    * @see ParticipantId
    */
@@ -54,6 +76,11 @@ export type ParticipantSuspended = {
  */
 export type ParticipantReactivated = {
   /**
+   * イベントのタイプです。
+   */
+  type: typeof ParticipantEventType.REACTIVATED;
+
+  /**
    * 復帰した参加者の識別子です。
    * @see ParticipantId
    */
@@ -75,6 +102,11 @@ export type ParticipantReactivated = {
  * 参加者が退会したことを表すイベントです。
  */
 export type ParticipantWithdrawn = {
+  /**
+   * イベントのタイプです。
+   */
+  type: typeof ParticipantEventType.WITHDRAWN;
+
   /**
    * 退会した参加者の識別子です。
    * @see ParticipantId
@@ -130,6 +162,7 @@ ParticipantEnrolled.reconstruct = (
   params: ParticipantEnrolledReconstructParams,
 ): ParticipantEnrolled => {
   return ParticipantEnrolled({
+    type: ParticipantEventType.ENROLLED,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
     enrolledAt: params.enrolledAt,
@@ -144,6 +177,7 @@ ParticipantEnrolled.reconstruct = (
  */
 ParticipantEnrolled.create = (participant: Participant): ParticipantEnrolled => {
   return ParticipantEnrolled({
+    type: ParticipantEventType.ENROLLED,
     participantId: participant.id,
     name: participant.name,
     enrolledAt: new Date(),
@@ -173,6 +207,7 @@ ParticipantSuspended.reconstruct = (
   params: ParticipantSuspendedReconstructParams,
 ): ParticipantSuspended => {
   return ParticipantSuspended({
+    type: ParticipantEventType.SUSPENDED,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
     suspendedAt: params.suspendedAt,
@@ -187,6 +222,7 @@ ParticipantSuspended.reconstruct = (
  */
 ParticipantSuspended.create = (participant: Participant): ParticipantSuspended => {
   return ParticipantSuspended({
+    type: ParticipantEventType.SUSPENDED,
     participantId: participant.id,
     name: participant.name,
     suspendedAt: new Date(),
@@ -216,6 +252,7 @@ ParticipantReactivated.reconstruct = (
   params: ParticipantReactivatedReconstructParams,
 ): ParticipantReactivated => {
   return ParticipantReactivated({
+    type: ParticipantEventType.REACTIVATED,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
     reactivatedAt: params.reactivatedAt,
@@ -230,6 +267,7 @@ ParticipantReactivated.reconstruct = (
  */
 ParticipantReactivated.create = (participant: Participant): ParticipantReactivated => {
   return ParticipantReactivated({
+    type: ParticipantEventType.REACTIVATED,
     participantId: participant.id,
     name: participant.name,
     reactivatedAt: new Date(),
@@ -259,6 +297,7 @@ ParticipantWithdrawn.reconstruct = (
   params: ParticipantWithdrawnReconstructParams,
 ): ParticipantWithdrawn => {
   return ParticipantWithdrawn({
+    type: ParticipantEventType.WITHDRAWN,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
     withdrawnAt: params.withdrawnAt,
@@ -273,6 +312,7 @@ ParticipantWithdrawn.reconstruct = (
  */
 ParticipantWithdrawn.create = (participant: Participant): ParticipantWithdrawn => {
   return ParticipantWithdrawn({
+    type: ParticipantEventType.WITHDRAWN,
     participantId: participant.id,
     name: participant.name,
     withdrawnAt: new Date(),

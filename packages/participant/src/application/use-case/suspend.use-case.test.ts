@@ -49,7 +49,7 @@ describe("参加者休会ユースケース", () => {
 
     await executeUseCase({ participantId: participant.id });
 
-    expect(eventPublisherMock.publishSuspended).toHaveBeenCalledExactlyOnceWith(
+    expect(eventPublisherMock.publish).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         participantId: participant.id,
         name: participant.name,
@@ -65,7 +65,7 @@ describe("参加者休会ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(eventPublisherMock.publishSuspended).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });
 
   test("不正な参加者 ID の場合はバリデーションエラーを返し保存もイベント発行もしない", async () => {
@@ -74,7 +74,7 @@ describe("参加者休会ユースケース", () => {
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
     expect(participantRepositoryMock.findById).not.toHaveBeenCalled();
-    expect(eventPublisherMock.publishSuspended).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });
 
   test("在籍中以外の参加者の場合はドメインエラーを返し保存もイベント発行もしない", async () => {
@@ -85,6 +85,6 @@ describe("参加者休会ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
-    expect(eventPublisherMock.publishSuspended).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });
 });

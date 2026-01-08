@@ -11,10 +11,54 @@ import {
 import type { EventPublisher } from "../../application/port/event-publisher";
 import type {
   ParticipantEnrolled,
+  ParticipantEvent,
   ParticipantReactivated,
   ParticipantSuspended,
   ParticipantWithdrawn,
 } from "../../domain";
+import { ParticipantEventType } from "../../domain";
+
+/**
+ * 統合イベントの型です。
+ */
+type IntegrationEvent = ReturnType<
+  | typeof ParticipantEnrolledEvent
+  | typeof ParticipantSuspendedEvent
+  | typeof ParticipantReactivatedEvent
+  | typeof ParticipantWithdrawnEvent
+>;
+
+/**
+ * ドメインイベントを統合イベントに変換する関数のマップです。
+ */
+const converters: {
+  [K in ParticipantEvent["type"]]: (event: Extract<ParticipantEvent, { type: K }>) => IntegrationEvent;
+} = {
+  [ParticipantEventType.ENROLLED]: (event: ParticipantEnrolled) =>
+    ParticipantEnrolledEvent({
+      participantId: event.participantId,
+      name: event.name,
+      enrolledAt: event.enrolledAt,
+    }),
+  [ParticipantEventType.SUSPENDED]: (event: ParticipantSuspended) =>
+    ParticipantSuspendedEvent({
+      participantId: event.participantId,
+      name: event.name,
+      suspendedAt: event.suspendedAt,
+    }),
+  [ParticipantEventType.REACTIVATED]: (event: ParticipantReactivated) =>
+    ParticipantReactivatedEvent({
+      participantId: event.participantId,
+      name: event.name,
+      reactivatedAt: event.reactivatedAt,
+    }),
+  [ParticipantEventType.WITHDRAWN]: (event: ParticipantWithdrawn) =>
+    ParticipantWithdrawnEvent({
+      participantId: event.participantId,
+      name: event.name,
+      withdrawnAt: event.withdrawnAt,
+    }),
+};
 
 /**
  * イベントバスアダプタの依存関係です。
@@ -39,88 +83,19 @@ export const PonpEventBusEventPublisher = (
 
   return {
     /**
-     * 参加者入会イベントを発行します。
+     * 参加者イベントを発行します。
      *
-     * @param event 発行する入会イベントです。
+     * @param event 発行するイベントです。
      * @throws {InfrastructureError} イベントの発行に失敗した場合にスローされます。
      */
-    async publishEnrolled(event: ParticipantEnrolled) {
+    async publish(event: ParticipantEvent) {
       try {
-        const integrationEvent = ParticipantEnrolledEvent({
-          participantId: event.participantId,
-          name: event.name,
-          enrolledAt: event.enrolledAt,
-        });
-        await publish(eventBus, integrationEvent);
+        const converter = converters[event.type];
+        const integrationEvent = converter(event as never);
+        await publish(eventBus, integrationEvent as Parameters<typeof publish>[1]);
       } catch (error) {
-        throw new InfrastructureError("参加者入会イベントの発行に失敗しました。", {
-          code: "PARTICIPANT_ENROLLED_EVENT_PUBLISH_FAILED",
-          cause: error,
-        });
-      }
-    },
-
-    /**
-     * 参加者休会イベントを発行します。
-     *
-     * @param event 発行する休会イベントです。
-     * @throws {InfrastructureError} イベントの発行に失敗した場合にスローされます。
-     */
-    async publishSuspended(event: ParticipantSuspended) {
-      try {
-        const integrationEvent = ParticipantSuspendedEvent({
-          participantId: event.participantId,
-          name: event.name,
-          suspendedAt: event.suspendedAt,
-        });
-        await publish(eventBus, integrationEvent);
-      } catch (error) {
-        throw new InfrastructureError("参加者休会イベントの発行に失敗しました。", {
-          code: "PARTICIPANT_SUSPENDED_EVENT_PUBLISH_FAILED",
-          cause: error,
-        });
-      }
-    },
-
-    /**
-     * 参加者復帰イベントを発行します。
-     *
-     * @param event 発行する復帰イベントです。
-     * @throws {InfrastructureError} イベントの発行に失敗した場合にスローされます。
-     */
-    async publishReactivated(event: ParticipantReactivated) {
-      try {
-        const integrationEvent = ParticipantReactivatedEvent({
-          participantId: event.participantId,
-          name: event.name,
-          reactivatedAt: event.reactivatedAt,
-        });
-        await publish(eventBus, integrationEvent);
-      } catch (error) {
-        throw new InfrastructureError("参加者復帰イベントの発行に失敗しました。", {
-          code: "PARTICIPANT_REACTIVATED_EVENT_PUBLISH_FAILED",
-          cause: error,
-        });
-      }
-    },
-
-    /**
-     * 参加者退会イベントを発行します。
-     *
-     * @param event 発行する退会イベントです。
-     * @throws {InfrastructureError} イベントの発行に失敗した場合にスローされます。
-     */
-    async publishWithdrawn(event: ParticipantWithdrawn) {
-      try {
-        const integrationEvent = ParticipantWithdrawnEvent({
-          participantId: event.participantId,
-          name: event.name,
-          withdrawnAt: event.withdrawnAt,
-        });
-        await publish(eventBus, integrationEvent);
-      } catch (error) {
-        throw new InfrastructureError("参加者退会イベントの発行に失敗しました。", {
-          code: "PARTICIPANT_WITHDRAWN_EVENT_PUBLISH_FAILED",
+        throw new InfrastructureError(`${event.type} イベントの発行に失敗しました。`, {
+          code: `${event.type}_EVENT_PUBLISH_FAILED`,
           cause: error,
         });
       }

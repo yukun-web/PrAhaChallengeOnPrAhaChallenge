@@ -8,7 +8,7 @@ import type {
   ParticipantSuspended,
   ParticipantWithdrawn,
 } from "../../domain";
-import { ParticipantId, ParticipantName } from "../../domain";
+import { ParticipantEventType, ParticipantId, ParticipantName } from "../../domain";
 import { PonpEventBusEventPublisher } from "./ponp-event-bus.event-publisher";
 
 vi.mock("@ponp/event-bus", () => ({
@@ -71,16 +71,17 @@ describe("PonpEventBusEventPublisher", () => {
     vi.clearAllMocks();
   });
 
-  describe("publishEnrolled", () => {
+  describe("publish (入会イベント)", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantEnrolled = {
+        type: ParticipantEventType.ENROLLED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         enrolledAt: TEST_DATE,
       };
 
-      await publisher.publishEnrolled(domainEvent);
+      await publisher.publish(domainEvent);
 
       expect(ParticipantEnrolledEvent).toHaveBeenCalledWith({
         participantId: TEST_PARTICIPANT_ID,
@@ -99,27 +100,27 @@ describe("PonpEventBusEventPublisher", () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantEnrolled = {
+        type: ParticipantEventType.ENROLLED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         enrolledAt: TEST_DATE,
       };
 
-      await expect(publisher.publishEnrolled(domainEvent)).rejects.toBeInstanceOf(
-        InfrastructureError,
-      );
+      await expect(publisher.publish(domainEvent)).rejects.toBeInstanceOf(InfrastructureError);
     });
   });
 
-  describe("publishSuspended", () => {
+  describe("publish (休会イベント)", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantSuspended = {
+        type: ParticipantEventType.SUSPENDED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         suspendedAt: TEST_DATE,
       };
 
-      await publisher.publishSuspended(domainEvent);
+      await publisher.publish(domainEvent);
 
       expect(ParticipantSuspendedEvent).toHaveBeenCalledWith({
         participantId: TEST_PARTICIPANT_ID,
@@ -138,27 +139,27 @@ describe("PonpEventBusEventPublisher", () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantSuspended = {
+        type: ParticipantEventType.SUSPENDED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         suspendedAt: TEST_DATE,
       };
 
-      await expect(publisher.publishSuspended(domainEvent)).rejects.toBeInstanceOf(
-        InfrastructureError,
-      );
+      await expect(publisher.publish(domainEvent)).rejects.toBeInstanceOf(InfrastructureError);
     });
   });
 
-  describe("publishReactivated", () => {
+  describe("publish (復帰イベント)", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantReactivated = {
+        type: ParticipantEventType.REACTIVATED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         reactivatedAt: TEST_DATE,
       };
 
-      await publisher.publishReactivated(domainEvent);
+      await publisher.publish(domainEvent);
 
       expect(ParticipantReactivatedEvent).toHaveBeenCalledWith({
         participantId: TEST_PARTICIPANT_ID,
@@ -177,27 +178,27 @@ describe("PonpEventBusEventPublisher", () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantReactivated = {
+        type: ParticipantEventType.REACTIVATED,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         reactivatedAt: TEST_DATE,
       };
 
-      await expect(publisher.publishReactivated(domainEvent)).rejects.toBeInstanceOf(
-        InfrastructureError,
-      );
+      await expect(publisher.publish(domainEvent)).rejects.toBeInstanceOf(InfrastructureError);
     });
   });
 
-  describe("publishWithdrawn", () => {
+  describe("publish (退会イベント)", () => {
     test("ドメインイベントを integration-event に変換して発行する", async () => {
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantWithdrawn = {
+        type: ParticipantEventType.WITHDRAWN,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         withdrawnAt: TEST_DATE,
       };
 
-      await publisher.publishWithdrawn(domainEvent);
+      await publisher.publish(domainEvent);
 
       expect(ParticipantWithdrawnEvent).toHaveBeenCalledWith({
         participantId: TEST_PARTICIPANT_ID,
@@ -216,14 +217,13 @@ describe("PonpEventBusEventPublisher", () => {
       vi.mocked(publish).mockRejectedValueOnce(new Error("QStash error"));
       const publisher = PonpEventBusEventPublisher({ eventBus: mockEventBus });
       const domainEvent: ParticipantWithdrawn = {
+        type: ParticipantEventType.WITHDRAWN,
         participantId: ParticipantId(TEST_PARTICIPANT_ID),
         name: ParticipantName(TEST_PARTICIPANT_NAME),
         withdrawnAt: TEST_DATE,
       };
 
-      await expect(publisher.publishWithdrawn(domainEvent)).rejects.toBeInstanceOf(
-        InfrastructureError,
-      );
+      await expect(publisher.publish(domainEvent)).rejects.toBeInstanceOf(InfrastructureError);
     });
   });
 });

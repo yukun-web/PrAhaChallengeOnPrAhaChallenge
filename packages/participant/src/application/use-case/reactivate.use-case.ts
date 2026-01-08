@@ -66,7 +66,7 @@ export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReac
     const [reactivatedParticipant, participantReactivated] = Participant.reactivate(participant);
 
     await participantRepository.save(reactivatedParticipant);
-    await eventPublisher.publishReactivated(participantReactivated);
+    await eventPublisher.publish(participantReactivated);
   };
 
   return executeReactivateUseCase;

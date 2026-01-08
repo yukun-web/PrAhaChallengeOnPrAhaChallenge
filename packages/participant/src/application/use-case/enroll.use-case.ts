@@ -64,7 +64,7 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
     });
 
     await participantRepository.save(enrolledParticipant);
-    await eventPublisher.publishEnrolled(participantEnrolled);
+    await eventPublisher.publish(participantEnrolled);
   };
 
   return executeEnrollUseCase;

@@ -66,7 +66,7 @@ export const createWithdrawUseCase = (dependencies: Dependencies): ExecuteWithdr
     const [withdrawnParticipant, participantWithdrawn] = Participant.withdraw(participant);
 
     await participantRepository.save(withdrawnParticipant);
-    await eventPublisher.publishWithdrawn(participantWithdrawn);
+    await eventPublisher.publish(participantWithdrawn);
   };
 
   return executeWithdrawUseCase;
