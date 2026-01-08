@@ -12,7 +12,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ponp/event-bus": "workspace:*",
     "@ponp/fundamental": "workspace:*",
+    "@ponp/integration-events": "workspace:*",
     "@ponp/testing": "workspace:*",
     "drizzle-orm": "^0.45.1"
   },

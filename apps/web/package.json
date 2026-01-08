@@ -10,6 +10,9 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
+    "@ponp/event-bus": "workspace:*",
+    "@ponp/fundamental": "workspace:*",
+    "@ponp/participant": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "next": "^16.1.1",
     "postgres": "^3.4.8",
@@ -18,7 +21,6 @@
   },
   "devDependencies": {
     "@ponp/eslint-config": "workspace:*",
-    "@ponp/participant": "workspace:*",
     "@ponp/typescript-config": "workspace:*",
     "@types/node": "25.0.3",
     "@types/react": "^19.2.7",

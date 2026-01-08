@@ -1,4 +1,5 @@
 import { Participant, ParticipantEmail, ParticipantName } from "../../domain";
+import type { ParticipantEventPublisher } from "../port/event-publisher.port";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -7,9 +8,15 @@ import type { ParticipantRepository } from "../port/participant.repository";
 type Dependencies = {
   /**
    * 参加者を保存するリポジトリの関数です。
-   * @see ParcipantRepository
+   * @see ParticipantRepository
    */
   participantRepository: ParticipantRepository;
+
+  /**
+   * 参加者イベントを発行するパブリッシャーです。
+   * @see ParticipantEventPublisher
+   */
+  participantEventPublisher: ParticipantEventPublisher;
 };
 
 /**
@@ -39,14 +46,14 @@ export type ExecuteEnrollUseCase = (params: EnrollParams) => Promise<void>;
  * @returns 参加者の入会ユースケースを返します。
  */
 export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUseCase => {
-  const { participantRepository } = dependencies;
+  const { participantRepository, participantEventPublisher } = dependencies;
 
   /**
    * 参加者の入会を扱うユースケースです。
    *
    * @param params 参加者の入会に必要なパラメータです。
    * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
-   * @throws {InfrastructureError} 参加者の保存に失敗した場合にスローされます。
+   * @throws {InfrastructureError} 参加者の保存またはイベント発行に失敗した場合にスローされます。
    */
   const executeEnrollUseCase = async (params: EnrollParams) => {
     const { name, email } = params;
@@ -56,8 +63,8 @@ export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUs
       email: ParticipantEmail(email),
     });
 
-    console.log("イベントを発行しました。", participantEnrolled); // TODO: イベントバスに乗せる
     await participantRepository.save(enrolledParticipant);
+    await participantEventPublisher.publishEnrolled(participantEnrolled);
   };
 
   return executeEnrollUseCase;

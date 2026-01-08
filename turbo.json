@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["POSTGRES_URL","EVENT_BUS_AUTH_TOKEN"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

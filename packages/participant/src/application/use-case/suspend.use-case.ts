@@ -1,6 +1,7 @@
 import { DomainError } from "@ponp/fundamental";
 
 import { Participant, ParticipantId } from "../../domain";
+import type { ParticipantEventPublisher } from "../port/event-publisher.port";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -12,6 +13,12 @@ type Dependencies = {
    * @see ParticipantRepository
    */
   participantRepository: ParticipantRepository;
+
+  /**
+   * 参加者イベントを発行するパブリッシャーです。
+   * @see ParticipantEventPublisher
+   */
+  participantEventPublisher: ParticipantEventPublisher;
 };
 
 /**
@@ -36,7 +43,7 @@ export type ExecuteSuspendUseCase = (params: SuspendParams) => Promise<void>;
  * @returns 参加者の休会ユースケースを返します。
  */
 export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspendUseCase => {
-  const { participantRepository } = dependencies;
+  const { participantRepository, participantEventPublisher } = dependencies;
 
   /**
    * 参加者の休会を扱うユースケースです。
@@ -44,7 +51,7 @@ export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspend
    * @param params 参加者の休会に必要なパラメータです。
    * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
    * @throws {DomainError} 参加者が存在しない場合や休会できない状態の場合にスローされます。
-   * @throws {InfrastructureError} 参加者の取得・保存に失敗した場合にスローされます。
+   * @throws {InfrastructureError} 参加者の取得・保存またはイベント発行に失敗した場合にスローされます。
    */
   const executeSuspendUseCase = async (params: SuspendParams) => {
     const { participantId } = params;
@@ -58,8 +65,8 @@ export const createSuspendUseCase = (dependencies: Dependencies): ExecuteSuspend
 
     const [suspendedParticipant, participantSuspended] = Participant.suspend(participant);
 
-    console.log("イベントを発行しました。", participantSuspended); // TODO: イベントバスに乗せる
     await participantRepository.save(suspendedParticipant);
+    await participantEventPublisher.publishSuspended(participantSuspended);
   };
 
   return executeSuspendUseCase;

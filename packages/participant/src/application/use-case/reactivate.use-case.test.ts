@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
+import { participantEventPublisherMock } from "../port/event-publisher.port.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteReactivateUseCase } from "./reactivate.use-case";
 import { createReactivateUseCase } from "./reactivate.use-case";
@@ -24,7 +25,10 @@ describe("参加者復帰ユースケース", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    executeUseCase = createReactivateUseCase({ participantRepository: participantRepositoryMock });
+    executeUseCase = createReactivateUseCase({
+      participantRepository: participantRepositoryMock,
+      participantEventPublisher: participantEventPublisherMock,
+    });
   });
 
   test("休会中の参加者を復帰状態にして保存する", async () => {
@@ -39,24 +43,41 @@ describe("参加者復帰ユースケース", () => {
     });
   });
 
-  test("存在しない参加者 ID の場合はエラーを返し保存しない", async () => {
+  test("参加者の復帰時にイベントを発行する", async () => {
+    const participant = createDummyParticipant({ status: ParticipantStatus.SUSPENDED });
+    participantRepositoryMock.findById.mockResolvedValue(participant);
+
+    await executeUseCase({ participantId: participant.id });
+
+    expect(participantEventPublisherMock.publishReactivated).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        participantId: participant.id,
+        name: participant.name,
+        reactivatedAt: expect.any(Date),
+      }),
+    );
+  });
+
+  test("存在しない参加者 ID の場合はエラーを返し保存もイベント発行もしない", async () => {
     participantRepositoryMock.findById.mockResolvedValue(undefined);
 
     const act = () => executeUseCase({ participantId: TEST_NOT_FOUND_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
+    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 
-  test("不正な参加者 ID の場合はバリデーションエラーを返し保存しない", async () => {
+  test("不正な参加者 ID の場合はバリデーションエラーを返し保存もイベント発行もしない", async () => {
     const act = () => executeUseCase({ participantId: TEST_INVALID_PARTICIPANT_ID });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
     expect(participantRepositoryMock.findById).not.toHaveBeenCalled();
+    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 
-  test("休会中以外の参加者の場合はドメインエラーを返し保存しない", async () => {
+  test("休会中以外の参加者の場合はドメインエラーを返し保存もイベント発行もしない", async () => {
     const participant = createDummyParticipant({ status: ParticipantStatus.ACTIVE });
     participantRepositoryMock.findById.mockResolvedValue(participant);
 
@@ -64,5 +85,6 @@ describe("参加者復帰ユースケース", () => {
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
+    expect(participantEventPublisherMock.publishReactivated).not.toHaveBeenCalled();
   });
 });

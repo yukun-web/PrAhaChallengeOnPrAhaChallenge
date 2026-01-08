@@ -1,3 +1,4 @@
+import type { Database } from "@ponp/fundamental";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -26,11 +27,6 @@ const isLocalPostgresUrl = (urlString: string): boolean => {
  * ローカルの PostgreSQL かどうかのフラグです。
  */
 const isLocal = isLocalPostgresUrl(postgresUrl);
-
-/**
- * Drizzle のデータベースインスタンス型です。
- */
-type Database = ReturnType<typeof drizzle>;
 
 declare global {
   /**

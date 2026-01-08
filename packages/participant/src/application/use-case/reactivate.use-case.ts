@@ -1,6 +1,7 @@
 import { DomainError } from "@ponp/fundamental";
 
 import { Participant, ParticipantId } from "../../domain";
+import type { ParticipantEventPublisher } from "../port/event-publisher.port";
 import type { ParticipantRepository } from "../port/participant.repository";
 
 /**
@@ -12,6 +13,12 @@ type Dependencies = {
    * @see ParticipantRepository
    */
   participantRepository: ParticipantRepository;
+
+  /**
+   * 参加者イベントを発行するパブリッシャーです。
+   * @see ParticipantEventPublisher
+   */
+  participantEventPublisher: ParticipantEventPublisher;
 };
 
 /**
@@ -36,7 +43,7 @@ export type ExecuteReactivateUseCase = (params: ReactivateParams) => Promise<voi
  * @returns 参加者の復帰ユースケースを返します。
  */
 export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReactivateUseCase => {
-  const { participantRepository } = dependencies;
+  const { participantRepository, participantEventPublisher } = dependencies;
 
   /**
    * 参加者の復帰を扱うユースケースです。
@@ -44,7 +51,7 @@ export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReac
    * @param params 参加者の復帰に必要なパラメータです。
    * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
    * @throws {DomainError} 参加者が存在しない場合や復帰できない状態の場合にスローされます。
-   * @throws {InfrastructureError} 参加者の取得・保存に失敗した場合にスローされます。
+   * @throws {InfrastructureError} 参加者の取得・保存またはイベント発行に失敗した場合にスローされます。
    */
   const executeReactivateUseCase = async (params: ReactivateParams) => {
     const { participantId } = params;
@@ -58,8 +65,8 @@ export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReac
 
     const [reactivatedParticipant, participantReactivated] = Participant.reactivate(participant);
 
-    console.log("イベントを発行しました。", participantReactivated); // TODO: イベントバスに乗せる
     await participantRepository.save(reactivatedParticipant);
+    await participantEventPublisher.publishReactivated(participantReactivated);
   };
 
   return executeReactivateUseCase;

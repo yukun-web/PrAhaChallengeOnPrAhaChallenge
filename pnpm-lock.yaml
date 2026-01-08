@@ -54,6 +54,15 @@ importers:
       '@ponp/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@ponp/event-bus':
+        specifier: workspace:*
+        version: link:../../packages/event-bus
+      '@ponp/fundamental':
+        specifier: workspace:*
+        version: link:../../packages/fundamental
+      '@ponp/integration-events':
+        specifier: workspace:*
+        version: link:../../packages/integration-events
       '@ponp/participant':
         specifier: workspace:*
         version: link:../../packages/participant
@@ -198,9 +207,15 @@ importers:
 
   packages/participant:
     dependencies:
+      '@ponp/event-bus':
+        specifier: workspace:*
+        version: link:../event-bus
       '@ponp/fundamental':
         specifier: workspace:*
         version: link:../fundamental
+      '@ponp/integration-events':
+        specifier: workspace:*
+        version: link:../integration-events
       '@ponp/testing':
         specifier: workspace:*
         version: link:../testing

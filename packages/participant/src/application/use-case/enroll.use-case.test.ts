@@ -3,6 +3,7 @@ import { spyUuid } from "@ponp/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
+import { participantEventPublisherMock } from "../port/event-publisher.port.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteEnrollUseCase } from "./enroll.use-case";
 import { createEnrollUseCase } from "./enroll.use-case";
@@ -35,7 +36,10 @@ describe("参加者入会ユースケース", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    executeUseCase = createEnrollUseCase({ participantRepository: participantRepositoryMock });
+    executeUseCase = createEnrollUseCase({
+      participantRepository: participantRepositoryMock,
+      participantEventPublisher: participantEventPublisherMock,
+    });
   });
 
   test("参加者の入会時にリポジトリへ保存する", async () => {
@@ -51,10 +55,25 @@ describe("参加者入会ユースケース", () => {
     });
   });
 
-  test("不正なメールアドレスの場合はエラーを返し保存しない", async () => {
+  test("参加者の入会時にイベントを発行する", async () => {
+    spyUuid(TEST_PARTICIPANT_ID);
+
+    await executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_PARTICIPANT_EMAIL });
+
+    expect(participantEventPublisherMock.publishEnrolled).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        participantId: TEST_PARTICIPANT_ID,
+        name: TEST_PARTICIPANT_NAME,
+        enrolledAt: expect.any(Date),
+      }),
+    );
+  });
+
+  test("不正なメールアドレスの場合はエラーを返し保存もイベント発行もしない", async () => {
     const act = () => executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_INVALID_EMAIL });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
+    expect(participantEventPublisherMock.publishEnrolled).not.toHaveBeenCalled();
   });
 });

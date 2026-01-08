@@ -7,7 +7,7 @@ import {
   withdrawParticipant,
 } from "@ponp/participant";
 
-import { participantModule } from "../../../bootstrap";
+import { participantModule } from "../../bootstrap";
 
 type ActionState = {
   ok: boolean;

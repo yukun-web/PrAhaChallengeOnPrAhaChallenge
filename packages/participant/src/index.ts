@@ -1,3 +1,4 @@
+import type { EventBus } from "@ponp/event-bus";
 import type { Database } from "@ponp/fundamental";
 
 import {
@@ -10,8 +11,9 @@ import {
   type ExecuteSuspendUseCase,
   type ExecuteWithdrawUseCase,
 } from "./application";
+import type { ParticipantEventPublisher } from "./application/port/event-publisher.port";
 import type { ParticipantRepository } from "./application/port/participant.repository";
-import { ParticipantDrizzleRepository } from "./infrastructure";
+import { ParticipantDrizzleRepository, ParticipantEventBusPublisher } from "./infrastructure";
 
 /**
  * 参加者モジュールの依存関係です。
@@ -21,6 +23,11 @@ type ParticipantModuleDependencies = {
    * Drizzle の Database インスタンスです。
    */
   db: Database;
+
+  /**
+   * イベントバスのインスタンスです。
+   */
+  eventBus: EventBus;
 };
 
 /**
@@ -31,6 +38,11 @@ export type ParticipantModule = {
    * 参加者を保存・取得するリポジトリです。
    */
   participantRepository: ParticipantRepository;
+
+  /**
+   * 参加者イベントを発行するパブリッシャーです。
+   */
+  participantEventPublisher: ParticipantEventPublisher;
 };
 
 /**
@@ -42,11 +54,13 @@ export type ParticipantModule = {
 export const createParticipantModule = (
   dependencies: ParticipantModuleDependencies,
 ): ParticipantModule => {
-  const { db } = dependencies;
+  const { db, eventBus } = dependencies;
   const participantRepository = ParticipantDrizzleRepository({ db });
+  const participantEventPublisher = ParticipantEventBusPublisher({ eventBus });
 
   return {
     participantRepository,
+    participantEventPublisher,
   };
 };
 
@@ -57,7 +71,7 @@ export const createParticipantModule = (
  * @param params 入会に必要なパラメータを指定します。
  * @returns 入会処理の結果を返します。
  * @throws {ValidationError} 名前またはメールアドレスが不正な場合にスローされます。
- * @throws {InfrastructureError} 保存に失敗した場合にスローされます。
+ * @throws {InfrastructureError} 保存またはイベント発行に失敗した場合にスローされます。
  */
 export const enrollNewParticipant = (
   module: ParticipantModule,
@@ -65,6 +79,7 @@ export const enrollNewParticipant = (
 ): ReturnType<ExecuteEnrollUseCase> => {
   const executeEnrollUseCase = createEnrollUseCase({
     participantRepository: module.participantRepository,
+    participantEventPublisher: module.participantEventPublisher,
   });
 
   return executeEnrollUseCase(params);
@@ -78,7 +93,7 @@ export const enrollNewParticipant = (
  * @returns 休会処理の結果を返します。
  * @throws {ValidationError} 参加者 ID が不正な場合にスローされます。
  * @throws {DomainError} 参加者が存在しない場合や休会できない状態の場合にスローされます。
- * @throws {InfrastructureError} 取得または保存に失敗した場合にスローされます。
+ * @throws {InfrastructureError} 取得・保存またはイベント発行に失敗した場合にスローされます。
  */
 export const suspendParticipant = (
   module: ParticipantModule,
@@ -86,6 +101,7 @@ export const suspendParticipant = (
 ): ReturnType<ExecuteSuspendUseCase> => {
   const executeSuspendUseCase = createSuspendUseCase({
     participantRepository: module.participantRepository,
+    participantEventPublisher: module.participantEventPublisher,
   });
 
   return executeSuspendUseCase(params);
@@ -99,7 +115,7 @@ export const suspendParticipant = (
  * @returns 復帰処理の結果を返します。
  * @throws {ValidationError} 参加者 ID が不正な場合にスローされます。
  * @throws {DomainError} 参加者が存在しない場合や復帰できない状態の場合にスローされます。
- * @throws {InfrastructureError} 取得または保存に失敗した場合にスローされます。
+ * @throws {InfrastructureError} 取得・保存またはイベント発行に失敗した場合にスローされます。
  */
 export const reactivateParticipant = (
   module: ParticipantModule,
@@ -107,6 +123,7 @@ export const reactivateParticipant = (
 ): ReturnType<ExecuteReactivateUseCase> => {
   const executeReactivateUseCase = createReactivateUseCase({
     participantRepository: module.participantRepository,
+    participantEventPublisher: module.participantEventPublisher,
   });
 
   return executeReactivateUseCase(params);
@@ -120,7 +137,7 @@ export const reactivateParticipant = (
  * @returns 退会処理の結果を返します。
  * @throws {ValidationError} 参加者 ID が不正な場合にスローされます。
  * @throws {DomainError} 参加者が存在しない場合や退会できない状態の場合にスローされます。
- * @throws {InfrastructureError} 取得または保存に失敗した場合にスローされます。
+ * @throws {InfrastructureError} 取得・保存またはイベント発行に失敗した場合にスローされます。
  */
 export const withdrawParticipant = (
   module: ParticipantModule,
@@ -128,6 +145,7 @@ export const withdrawParticipant = (
 ): ReturnType<ExecuteWithdrawUseCase> => {
   const executeWithdrawUseCase = createWithdrawUseCase({
     participantRepository: module.participantRepository,
+    participantEventPublisher: module.participantEventPublisher,
   });
 
   return executeWithdrawUseCase(params);
