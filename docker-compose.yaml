@@ -9,6 +9,11 @@ services:
       - '54321:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  qstash:
+    image: 'public.ecr.aws/upstash/qstash:latest'
+    command: qstash dev
+    ports:
+      - '8080:8080'
   
 volumes:
   postgres_data:
