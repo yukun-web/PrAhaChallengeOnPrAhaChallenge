@@ -1,7 +1,7 @@
-import { initEventBus } from "@ponp/event-bus";
 import { createParticipantModule } from "@ponp/participant";
 
 import { createDb } from "./db";
+import { createEventBus } from "./event-bus";
 
 /**
  * Drizzle のデータベースインスタンスです。
@@ -9,17 +9,9 @@ import { createDb } from "./db";
 const db = createDb();
 
 /**
- * EventBus の認証トークンです。
- */
-const authToken = process.env.EVENT_BUS_AUTH_TOKEN;
-if (authToken === undefined) {
-  throw new Error("EVENT_BUS_AUTH_TOKEN が設定されていません。");
-}
-
-/**
  * イベントバスのインスタンスです。
  */
-const eventBus = initEventBus({ authToken });
+const eventBus = createEventBus();
 
 /**
  * 参加者モジュールです。
