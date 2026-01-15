@@ -21,18 +21,19 @@ import { ParticipantEventType } from "../../domain";
 /**
  * 統合イベントの型です。
  */
-type IntegrationEvent = ReturnType<
-  | typeof ParticipantEnrolledEvent
-  | typeof ParticipantSuspendedEvent
-  | typeof ParticipantReactivatedEvent
-  | typeof ParticipantWithdrawnEvent
->;
+type IntegrationEvent =
+  | ParticipantEnrolledEvent
+  | ParticipantSuspendedEvent
+  | ParticipantReactivatedEvent
+  | ParticipantWithdrawnEvent;
 
 /**
  * ドメインイベントを統合イベントに変換する関数のマップです。
  */
 const converters: {
-  [K in ParticipantEvent["type"]]: (event: Extract<ParticipantEvent, { type: K }>) => IntegrationEvent;
+  [K in ParticipantEvent["type"]]: (
+    event: Extract<ParticipantEvent, { type: K }>,
+  ) => IntegrationEvent;
 } = {
   [ParticipantEventType.ENROLLED]: (event: ParticipantEnrolled) =>
     ParticipantEnrolledEvent({
@@ -92,7 +93,7 @@ export const PonpEventBusEventPublisher = (
       try {
         const converter = converters[event.type];
         const integrationEvent = converter(event as never);
-        await publish(eventBus, integrationEvent as Parameters<typeof publish>[1]);
+        await publish<IntegrationEvent>(eventBus, integrationEvent);
       } catch (error) {
         throw new InfrastructureError(`${event.type} イベントの発行に失敗しました。`, {
           code: `${event.type}_EVENT_PUBLISH_FAILED`,

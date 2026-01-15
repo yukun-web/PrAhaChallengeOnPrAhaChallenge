@@ -7,6 +7,11 @@ import { getQueueName } from "./handler-registry";
 import { createHandlerRegistry, getHandlerNames, registerHandler } from "./handler-registry";
 
 /**
+ * デフォルトのイベントハンドラエンドポイントのパスです。
+ */
+const DEFAULT_ENDPOINT_PATH = "/api/event-bus";
+
+/**
  * イベントバスの初期化オプションです。
  */
 export type EventBusOptions = {
@@ -14,6 +19,12 @@ export type EventBusOptions = {
    * イベントバスの認証トークンです。
    */
   authToken: string;
+
+  /**
+   * イベントハンドラエンドポイントのパスです。
+   * デフォルトでは `/api/event-bus` が使用されます。
+   */
+  endpointPath?: string;
 };
 
 /**
@@ -24,10 +35,17 @@ export type EventBus = {
    * イベントハンドラの登録情報です。
    */
   handlerRegistry: HandlerRegistry;
+
   /**
    * イベントバスの認証トークンです。
    */
   authToken: string;
+
+  /**
+   * イベントハンドラエンドポイントのパスです。
+   */
+  endpointPath: string;
+
   /**
    * QStash クライアントです。
    */
@@ -46,16 +64,13 @@ declare global {
  * @returns 初期化されたイベントバスを返します。
  */
 export const initEventBus = (options: EventBusOptions): EventBus => {
-  const qstash =
-    global.__scs_qstash ??
-    new Client({
-      token: process.env.QSTASH_TOKEN,
-    });
+  const qstash = global.__scs_qstash ?? new Client();
   global.__scs_qstash = qstash;
 
   return {
     handlerRegistry: createHandlerRegistry(),
     authToken: options.authToken,
+    endpointPath: options.endpointPath ?? DEFAULT_ENDPOINT_PATH,
     qstash,
   };
 };
@@ -89,12 +104,9 @@ export const subscribe = <Type extends string, Payload>(
  * @param event イベントを指定します。
  * @returns 何も返しません。
  */
-export const publish = async <Type extends string, Payload>(
-  eventBus: EventBus,
-  event: Event<Type, Payload>,
-): Promise<void> => {
+export const publish = async <E extends Event>(eventBus: EventBus, event: E): Promise<void> => {
   const eventType = event.type;
-  const EventConstructor = { type: eventType } as unknown as EventConstructor<Event<Type, Payload>>;
+  const EventConstructor = { type: eventType } as unknown as EventConstructor;
   const handlerNames = getHandlerNames(eventBus.handlerRegistry, EventConstructor);
 
   if (handlerNames.length === 0) {
@@ -102,9 +114,16 @@ export const publish = async <Type extends string, Payload>(
   }
 
   const handlePromises = handlerNames.map(async (handlerName) => {
-    let urlString = `${process.env.NEXT_PUBLIC_BASE_URL}/api/event-bus`;
-    urlString += `?event=${encodeURIComponent(event.type)}`;
-    urlString += `&handler=${encodeURIComponent(handlerName)}`;
+    if (process.env.NEXT_PUBLIC_BASE_URL) {
+      throw new Error("有効な発行先エンドポイントが設定されていません。");
+    }
+
+    const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "http://host.docker.internal:3000";
+    const url = new URL(eventBus.endpointPath, baseURL);
+    url.searchParams.append("event", eventType);
+    url.searchParams.append("handler", handlerName);
+
+    const urlString = url.toString();
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
