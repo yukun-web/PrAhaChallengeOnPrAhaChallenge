@@ -54,9 +54,7 @@ export const createReactivateUseCase = (dependencies: Dependencies): ExecuteReac
    * @throws {InfrastructureError} 参加者の取得・保存またはイベント発行に失敗した場合にスローされます。
    */
   const executeReactivateUseCase = async (params: ReactivateParams) => {
-    const { participantId } = params;
-
-    const id = ParticipantId(participantId);
+    const id = ParticipantId(params.participantId);
     const participant = await participantRepository.findById(id);
 
     if (!participant) {

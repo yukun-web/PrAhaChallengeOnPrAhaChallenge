@@ -1,8 +1,9 @@
-import { ValidationError } from "@ponp/fundamental";
+import { DomainError, ValidationError } from "@ponp/fundamental";
 import { spyUuid } from "@ponp/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ParticipantStatus } from "../../domain";
+import { createDummyParticipant } from "../../domain/testing";
 import { eventPublisherMock } from "../port/event-publisher.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
 import type { ExecuteEnrollUseCase } from "./enroll.use-case";
@@ -73,6 +74,17 @@ describe("参加者入会ユースケース", () => {
     const act = () => executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_INVALID_EMAIL });
 
     await expect(act).rejects.toBeInstanceOf(ValidationError);
+    expect(participantRepositoryMock.save).not.toHaveBeenCalled();
+    expect(eventPublisherMock.publish).not.toHaveBeenCalled();
+  });
+
+  test("メールアドレスが既に登録されている場合はエラーを返し保存もイベント発行もしない", async () => {
+    const existingParticipant = createDummyParticipant({ email: TEST_PARTICIPANT_EMAIL });
+    participantRepositoryMock.findByEmail.mockResolvedValue(existingParticipant);
+
+    const act = executeUseCase({ name: TEST_PARTICIPANT_NAME, email: TEST_PARTICIPANT_EMAIL });
+
+    await expect(act).rejects.toBeInstanceOf(DomainError);
     expect(participantRepositoryMock.save).not.toHaveBeenCalled();
     expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });

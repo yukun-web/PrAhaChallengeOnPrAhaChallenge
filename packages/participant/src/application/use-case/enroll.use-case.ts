@@ -1,6 +1,32 @@
+import { DomainError } from "@ponp/fundamental";
+
 import { Participant, ParticipantEmail, ParticipantName } from "../../domain";
 import type { EventPublisher } from "../port/event-publisher";
 import type { ParticipantRepository } from "../port/participant.repository";
+
+/**
+ * メールアドレスの重複をチェックするドメインサービスを作成します。
+ *
+ * @param participantRepository 参加者リポジトリです。
+ * @returns メールアドレスの重複をチェックする関数を返します。
+ */
+const createEnsureEmailNotDuplicated = (participantRepository: ParticipantRepository) => {
+  /**
+   * メールアドレスが重複していないことを確認します。
+   *
+   * @param email 確認するメールアドレスです。
+   * @throws {DomainError} メールアドレスが既に登録されている場合にスローされます。
+   * @throws {InfrastructureError} 参加者の取得に失敗した場合にスローされます。
+   */
+  return async (email: ParticipantEmail): Promise<void> => {
+    const existingParticipant = await participantRepository.findByEmail(email);
+    if (existingParticipant) {
+      throw new DomainError("指定されたメールアドレスは既に登録されています。", {
+        code: "PARTICIPANT_EMAIL_ALREADY_EXISTS",
+      });
+    }
+  };
+};
 
 /**
  * 参加者の入会ユースケースが必要とする依存関係です。
@@ -48,20 +74,22 @@ export type ExecuteEnrollUseCase = (params: EnrollParams) => Promise<void>;
 export const createEnrollUseCase = (dependencies: Dependencies): ExecuteEnrollUseCase => {
   const { participantRepository, eventPublisher } = dependencies;
 
+  const ensureEmailNotDuplicated = createEnsureEmailNotDuplicated(participantRepository);
+
   /**
    * 参加者の入会を扱うユースケースです。
    *
    * @param params 参加者の入会に必要なパラメータです。
    * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
+   * @throws {DomainError} メールアドレスが既に登録されている場合にスローされます。
    * @throws {InfrastructureError} 参加者の保存またはイベント発行に失敗した場合にスローされます。
    */
   const executeEnrollUseCase = async (params: EnrollParams) => {
-    const { name, email } = params;
+    const name = ParticipantName(params.name);
+    const email = ParticipantEmail(params.email);
+    await ensureEmailNotDuplicated(email);
 
-    const [enrolledParticipant, participantEnrolled] = Participant.enroll({
-      name: ParticipantName(name),
-      email: ParticipantEmail(email),
-    });
+    const [enrolledParticipant, participantEnrolled] = Participant.enroll({ name, email });
 
     await participantRepository.save(enrolledParticipant);
     await eventPublisher.publish(participantEnrolled);

@@ -4,9 +4,10 @@ import {
   InfrastructureError,
   upsertAggregateTable,
 } from "@ponp/fundamental";
+import { sql } from "drizzle-orm";
 
 import type { ParticipantRepository } from "../../application/port/participant.repository";
-import type { ParticipantId } from "../../domain";
+import type { ParticipantEmail, ParticipantId } from "../../domain";
 import { Participant } from "../../domain";
 import { participantsTable } from "../db/schema";
 
@@ -58,6 +59,35 @@ export const ParticipantDrizzleRepository = (
       } catch (error) {
         throw new InfrastructureError("参加者の取得に失敗しました。", {
           code: "PARTICIPANT_FIND_BY_ID_FAILED",
+          cause: error,
+        });
+      }
+    },
+
+    /**
+     * メールアドレスから参加者を取得します。
+     *
+     * @param email 検索する参加者のメールアドレスです。
+     * @returns 見つかった場合は参加者を、存在しない場合は undefined を返します。
+     * @throws {InfrastructureError} 取得に失敗した場合はエラーをスローします。
+     */
+    async findByEmail(email: ParticipantEmail) {
+      try {
+        const [record] = await db
+          .select({ data: participantsTable.data })
+          .from(participantsTable)
+          .where(sql`${participantsTable.data}->>'email' = ${email}`)
+          .limit(1)
+          .execute();
+
+        if (record === undefined) {
+          return undefined;
+        }
+
+        return Participant.reconstruct(record.data as Participant);
+      } catch (error) {
+        throw new InfrastructureError("参加者の取得に失敗しました。", {
+          code: "PARTICIPANT_FIND_BY_EMAIL_FAILED",
           cause: error,
         });
       }

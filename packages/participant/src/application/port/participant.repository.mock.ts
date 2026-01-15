@@ -16,4 +16,9 @@ export const participantRepositoryMock: Mocked<ParticipantRepository> = {
    * ID から参加者を取得します。
    */
   findById: vi.fn(),
+
+  /**
+   * メールアドレスから参加者を取得します。
+   */
+  findByEmail: vi.fn(),
 };

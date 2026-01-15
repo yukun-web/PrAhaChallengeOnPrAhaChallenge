@@ -3,7 +3,7 @@ import { assertRecordExists, createInMemoryDatabase } from "@ponp/testing";
 import { beforeAll, describe, expect, test } from "vitest";
 
 import type { ParticipantRepository } from "../../application/port/participant.repository";
-import { Participant, ParticipantId } from "../../domain";
+import { Participant, ParticipantEmail, ParticipantId } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
 import { participantsTable } from "../db/schema";
 import { ParticipantDrizzleRepository } from "./participant.drizzle.repository";
@@ -58,6 +58,26 @@ describe("参加者リポジトリ（Drizzle）", () => {
 
     test("存在しない参加者の場合は undefined を返す", async () => {
       const result = await repository.findById(ParticipantId.generate());
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("メールアドレス取得", () => {
+    test("保存済みの参加者をメールアドレスで取得できる", async () => {
+      const participant = createDummyParticipant({
+        id: ParticipantId.generate(),
+        email: "findbyemail-test@example.com",
+      });
+      await repository.save(participant);
+
+      const result = await repository.findByEmail(participant.email);
+
+      expect(result).toEqual(participant);
+    });
+
+    test("存在しないメールアドレスの場合は undefined を返す", async () => {
+      const result = await repository.findByEmail(ParticipantEmail("nonexistent@example.com"));
 
       expect(result).toBeUndefined();
     });
