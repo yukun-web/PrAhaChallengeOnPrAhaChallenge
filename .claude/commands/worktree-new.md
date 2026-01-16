@@ -6,10 +6,9 @@ description: 並行開発用の git worktree を作成し、重複しないポ�
 
 ## 手順
 
-1. **対話形式でブランチ情報を確認**
-   - AskUserQuestion ツールを使用して以下を確認:
-     - 作成するブランチ名
-     - ベースブランチ名（デフォルト: main）
+1. **タイムスタンプを生成**
+   - 形式: `YYYYMMDD-HHMMSS`（例: `20260116-213508`）
+   - このタイムスタンプをディレクトリ名とブランチ名の両方で使用
 
 2. **ポートを計算**
    - `git worktree list` で現在の worktree 数を取得
@@ -22,8 +21,10 @@ description: 並行開発用の git worktree を作成し、重複しないポ�
 
 3. **worktree を作成**
    - ディレクトリ名: `<現在のディレクトリ名>-<タイムスタンプ>` 形式（例: `PrAhaChallengeOnPrAhaChallenge-20260116-213508`）
+   - ブランチ名: `worktree-<タイムスタンプ>` 形式（例: `worktree-20260116-213508`）
+   - ベースブランチ: `main`（固定）
    - ディレクトリ: `../<ディレクトリ名>`
-   - コマンド: `git worktree add -b <ブランチ名> <directory> <ベースブランチ>`
+   - コマンド: `git worktree add -b worktree-<タイムスタンプ> <directory> main`
 
 4. **ルートの .env.local を作成**
    `<worktree>/.env.local` を作成:
@@ -41,7 +42,11 @@ description: 並行開発用の git worktree を作成し、重複しないポ�
    PORT=<WEB_PORT>
    ```
 
-6. **結果を出力**
+6. **WebStorm を起動（オプション）**
+   - `which webstorm` で webstorm コマンドが有効か確認
+   - 有効な場合: `webstorm <worktree のパス>` で WebStorm を起動
+
+7. **結果を出力**
    - 作成した worktree のパス
    - 割り当てたポート番号
    - 起動コマンド: `cd <worktree> && pnpm docker:up`
