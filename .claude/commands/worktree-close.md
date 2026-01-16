@@ -9,7 +9,8 @@ description: 現在のディレクトリの git worktree を削除し、ディ�
 1. **worktree かどうか確認**
    - `git rev-parse --show-toplevel` で現在のリポジトリルートを取得
    - `git worktree list` で worktree 一覧を取得
-   - 現在のディレクトリがメインの worktree（最初に表示されるもの）の場合はエラーとして中断
+   - メインの worktree（最初に表示されるもの）のパスを保存
+   - 現在のディレクトリがメインの worktree の場合はエラーとして中断
      - メッセージ: 「メインのワークツリーは削除できません」
 
 2. **対話形式で確認**
@@ -28,11 +29,14 @@ description: 現在のディレクトリの git worktree を削除し、ディ�
 4. **Docker コンテナを停止**
    - `pnpm docker:down` を実行（エラーは無視）
 
-5. **worktree を削除**
+5. **ディレクトリを削除**
+   - 現在のディレクトリのパスを保存
    - 親ディレクトリに移動: `cd ..`
-   - worktree を削除: `git worktree remove <現在のディレクトリ名>`
-   - 強制削除の場合: `git worktree remove --force <現在のディレクトリ名>`
+   - ディレクトリを削除: `rm -rf <現在のディレクトリ名>`
 
-6. **結果を出力**
+6. **メイン worktree で prune を実行**
+   - 手順1で保存したメインの worktree ディレクトリで `git worktree prune` を実行
+
+7. **結果を出力**
    - 削除した worktree のパス
    - 「worktree を削除しました。メインのワークツリーに戻ってください。」
