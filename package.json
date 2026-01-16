@@ -16,7 +16,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "worktree:new": "./scripts/worktree-new.sh",
-    "worktree:close": "claude --dangerously-skip-permissions /worktree-close",
+    "worktree:close": "./scripts/worktree-close.sh",
     "docker:up": "dotenv -e .env.local -- docker-compose up -d",
     "docker:down": "dotenv -e .env.local -- docker-compose down"
   },
