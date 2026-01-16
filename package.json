@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "worktree:new": "claude --dangerously-skip-permissions /worktree",
+    "worktree:new": "claude --dangerously-skip-permissions /worktree-new",
+    "worktree:close": "claude --dangerously-skip-permissions /worktree-close",
     "docker:up": "dotenv -e .env.local -- docker-compose up -d",
     "docker:down": "dotenv -e .env.local -- docker-compose down"
   },
