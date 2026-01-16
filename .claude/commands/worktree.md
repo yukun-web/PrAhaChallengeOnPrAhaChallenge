@@ -18,10 +18,10 @@ arguments:
    - ディレクトリ名パターン: `<basename>-<POSTGRES_PORT>-<QSTASH_PORT>-<WEB_PORT>`
    - 例: `PrAhaChallengeOnPrAhaChallenge-54321-8081-3001`
    - 使用済みポートと重複しないポートを選択
-   - 基準値:
-     - POSTGRES_PORT: 54320 から探索
-     - QSTASH_PORT: 8080 から探索
-     - WEB_PORT: 3000 から探索
+   - 基準値（デフォルトポート + 1 から探索）:
+     - POSTGRES_PORT: 54321 から探索
+     - QSTASH_PORT: 8081 から探索
+     - WEB_PORT: 3001 から探索
 
 2. **worktree を作成**
    - ディレクトリ: `../$(basename $PWD)-<POSTGRES_PORT>-<QSTASH_PORT>-<WEB_PORT>`
@@ -41,9 +41,10 @@ arguments:
    ```
    POSTGRES_URL=postgresql://ponp:ponp@localhost:<POSTGRES_PORT>/ponp
    QSTASH_URL=http://localhost:<QSTASH_PORT>
+   PORT=<WEB_PORT>
    ```
 
 5. **結果を出力**
    - 作成した worktree のパス
    - 割り当てたポート番号
-   - 起動コマンド: `cd <worktree> && docker compose up`
+   - 起動コマンド: `cd <worktree> && pnpm docker:up`
