@@ -21,8 +21,8 @@ description: 並行開発用の git worktree を作成し、重複しないポ�
    - 例: worktree が 2 つある場合、POSTGRES_PORT = 54320 + 2 + 1 = 54323
 
 3. **worktree を作成**
-   - ディレクトリ名: タイムスタンプ形式 `worktree-YYYYMMDD-HHMMSS`
-   - ディレクトリ: `../<タイムスタンプ>`
+   - ディレクトリ名: `<現在のディレクトリ名>-<タイムスタンプ>` 形式（例: `PrAhaChallengeOnPrAhaChallenge-20260116-213508`）
+   - ディレクトリ: `../<ディレクトリ名>`
    - コマンド: `git worktree add -b <ブランチ名> <directory> <ベースブランチ>`
 
 4. **ルートの .env.local を作成**

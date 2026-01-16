@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env.local -- next dev -p ${PORT:-3000}",
+    "dev": "dotenv -e .env.local -- bash -c 'next -p $PORT'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx"
