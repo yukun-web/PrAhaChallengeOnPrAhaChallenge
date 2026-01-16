@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "dotenv -e .env.local -- next dev -p ${PORT:-3000}",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx"
@@ -25,6 +25,7 @@
     "@types/node": "25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "dotenv-cli": "^7.4.4",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3"
   }

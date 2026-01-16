@@ -18,7 +18,7 @@
     "worktree:new": "claude --dangerously-skip-permissions /worktree"
   },
   "devDependencies": {
-    "@anthropic-ai/claude-code": "^1",
+    "@anthropic-ai/claude-code": "^2.1.9",
     "@next/env": "^16.1.1",
     "@types/node": "25.0.3",
     "drizzle-kit": "^0.31.8",
