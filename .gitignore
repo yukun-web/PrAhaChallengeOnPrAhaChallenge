@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # TurboRepo
 .turbo
+
+# Environment files (local overrides)
+.env.local
