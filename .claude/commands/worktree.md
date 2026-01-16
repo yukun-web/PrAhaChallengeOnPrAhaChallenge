@@ -13,17 +13,20 @@ arguments:
 
 ## 手順
 
-1. **worktree を作成**
-   - ディレクトリ: `../$(basename $PWD)-$arguments.branch`
+1. **空きポートを決定**
+   - 親ディレクトリ内の既存 worktree ディレクトリ名からポートを抽出
+   - ディレクトリ名パターン: `<basename>-<POSTGRES_PORT>-<QSTASH_PORT>-<WEB_PORT>`
+   - 例: `PrAhaChallengeOnPrAhaChallenge-54321-8081-3001`
+   - 使用済みポートと重複しないポートを選択
+   - 基準値:
+     - POSTGRES_PORT: 54320 から探索
+     - QSTASH_PORT: 8080 から探索
+     - WEB_PORT: 3000 から探索
+
+2. **worktree を作成**
+   - ディレクトリ: `../$(basename $PWD)-<POSTGRES_PORT>-<QSTASH_PORT>-<WEB_PORT>`
    - ベースブランチ: `$arguments.base`（省略時は `main`）
    - コマンド: `git worktree add -b $arguments.branch <directory> <base>`
-
-2. **空きポートを探索**
-   - 基準値から順に空きポートを探す
-   - POSTGRES_PORT: 54320 から探索
-   - QSTASH_PORT: 8080 から探索
-   - WEB_PORT: 3000 から探索
-   - `lsof -i :<port>` または `nc -z localhost <port>` で確認
 
 3. **ルートの .env.local を作成**
    `<worktree>/.env.local` を作成:
