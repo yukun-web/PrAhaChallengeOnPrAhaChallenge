@@ -89,19 +89,19 @@ export const TaskStatus = (value: string): TaskStatus => {
 /**
  * 未着手のステータスです。
  */
-TaskStatus.NOT_STARTED = "NOT_STARTED" as TaskStatus;
+TaskStatus.NOT_STARTED = TaskStatus("NOT_STARTED");
 
 /**
  * 取組中のステータスです。
  */
-TaskStatus.IN_PROGRESS = "IN_PROGRESS" as TaskStatus;
+TaskStatus.IN_PROGRESS = TaskStatus("IN_PROGRESS");
 
 /**
  * レビュー待ちのステータスです。
  */
-TaskStatus.AWAITING_REVIEW = "AWAITING_REVIEW" as TaskStatus;
+TaskStatus.AWAITING_REVIEW = TaskStatus("AWAITING_REVIEW");
 
 /**
  * 完了のステータスです。
  */
-TaskStatus.COMPLETED = "COMPLETED" as TaskStatus;
+TaskStatus.COMPLETED = TaskStatus("COMPLETED");
