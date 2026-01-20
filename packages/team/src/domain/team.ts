@@ -1,6 +1,7 @@
 import type { UnwrapNominalRecord } from "@ponp/fundamental";
 import {
   assertNonEmptyString,
+  assertRegex,
   assertStringLength,
   assertUUID,
   type Nominal,
@@ -9,6 +10,11 @@ import {
 } from "@ponp/fundamental";
 
 import { TeamCreated } from "./events";
+
+/**
+ * 小文字英字のみを許可する正規表現です。
+ */
+const LOWERCASE_ALPHABETIC_REGEX = /^[a-z]+$/;
 
 /* ---- 型 ---- */
 
@@ -81,6 +87,7 @@ TeamId.generate = () => {
  * @returns 指定された文字列がチームの名前として有効であれば、その文字列を公称型にして返します。
  * @throws {ValidationError} 指定された文字列が空の場合にスローされます。
  * @throws {ValidationError} 指定された文字列が1文字を超える場合にスローされます。
+ * @throws {ValidationError} 指定された文字列が小文字英字以外を含む場合にスローされます。
  */
 export const TeamName = (value: string): TeamName => {
   const emptyError = new ValidationError({
@@ -96,6 +103,13 @@ export const TeamName = (value: string): TeamName => {
     value,
   });
   assertStringLength(value, 1, tooLongError);
+
+  const notLowercaseAlphabeticError = new ValidationError({
+    code: "TEAM_NAME_NOT_LOWERCASE_ALPHABETIC",
+    field: "TeamName",
+    value,
+  });
+  assertRegex(value, LOWERCASE_ALPHABETIC_REGEX, notLowercaseAlphabeticError);
 
   return value as TeamName;
 };
