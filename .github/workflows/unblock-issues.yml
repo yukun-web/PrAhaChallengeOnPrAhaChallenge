@@ -1,0 +1,94 @@
+name: Unblock Dependent Issues
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  unblock:
+    if: github.event.issue.state_reason == 'completed'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Find and unblock dependent issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const closedIssueNumber = context.issue.number;
+            console.log(`Issue #${closedIssueNumber} was closed. Checking for dependent issues...`);
+
+            // 全オープン Issue を取得
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            for (const issue of issues.data) {
+              // Issue 本文に "Blocked by #N" が含まれているか確認
+              const blockedByPattern = new RegExp(`Blocked by[^\\n]*#${closedIssueNumber}\\b`, 'i');
+              if (issue.body && blockedByPattern.test(issue.body)) {
+                console.log(`Found dependent issue #${issue.number}`);
+
+                // 他のブロッカーがまだあるか確認
+                const blockedByMatches = issue.body.match(/Blocked by[^\n]*(#\d+)/gi) || [];
+                const blockerNumbers = blockedByMatches
+                  .flatMap(m => m.match(/#(\d+)/g) || [])
+                  .map(n => parseInt(n.slice(1)));
+
+                // クローズされた Issue 以外のブロッカーをチェック
+                let stillBlocked = false;
+                for (const blockerNum of blockerNumbers) {
+                  if (blockerNum === closedIssueNumber) continue;
+                  try {
+                    const blocker = await github.rest.issues.get({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: blockerNum
+                    });
+                    if (blocker.data.state === 'open') {
+                      console.log(`Issue #${issue.number} is still blocked by #${blockerNum}`);
+                      stillBlocked = true;
+                      break;
+                    }
+                  } catch (e) {
+                    console.log(`Could not check issue #${blockerNum}: ${e.message}`);
+                  }
+                }
+
+                // 全ブロッカー解消なら parallel/ok に変更
+                if (!stillBlocked) {
+                  const hasBlockedLabel = issue.labels.some(l => l.name === 'parallel/blocked');
+                  if (hasBlockedLabel) {
+                    try {
+                      await github.rest.issues.removeLabel({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issue.number,
+                        name: 'parallel/blocked'
+                      });
+                    } catch (e) {
+                      console.log(`Could not remove parallel/blocked label: ${e.message}`);
+                    }
+
+                    await github.rest.issues.addLabels({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      labels: ['parallel/ok']
+                    });
+                    console.log(`Unblocked issue #${issue.number}`);
+
+                    // コメントを追加
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      body: `🔓 依存していた #${closedIssueNumber} がクローズされたため、この Issue は着手可能になりました。`
+                    });
+                  }
+                }
+              }
+            }

@@ -1,0 +1,131 @@
+name: Ready Issue
+description: 詳細設計完了、着手可能な Issue を作成
+title: "[Ready] "
+labels: ["status/ready", "type/feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Ready Issue テンプレート
+        詳細設計が完了し、着手可能な状態の Issue 用テンプレートです。
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 依存関係
+      description: 依存する Issue があれば記載（例: Blocked by #1, #2）
+      placeholder: |
+        Blocked by #N, #M
+    validations:
+      required: false
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: 概要
+      description: 何を実現したいか
+      placeholder: |
+        チームエンティティを実装し、参加者がチームに所属できるようにする
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: 詳細設計
+      description: 実装方針、影響ファイル、インターフェース設計など
+      placeholder: |
+        ### 影響ファイル
+        - `packages/team/src/domain/team.ts`
+        - `packages/team/src/domain/team-id.ts`
+
+        ### 実装方針
+        1. TeamId 値オブジェクトを作成
+        2. Team エンティティを作成
+        3. ドメインイベントを定義
+
+        ### インターフェース設計
+        ```typescript
+        type TeamId = Nominal<string, "TeamId">;
+
+        interface Team {
+          id: TeamId;
+          name: TeamName;
+          members: ParticipantId[];
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: test
+    attributes:
+      label: テスト方針
+      description: ユニットテスト、統合テストの方針
+      placeholder: |
+        - ユニットテスト: Team エンティティの振る舞いをテスト
+        - 統合テスト: リポジトリ経由の永続化をテスト
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 受け入れ条件
+      description: 完了とみなす具体的な条件
+      placeholder: |
+        - [ ] TeamId 値オブジェクトが作成できる
+        - [ ] Team エンティティが作成できる
+        - [ ] ユニットテストが通る
+        - [ ] lint/format が通る
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: チェックリスト
+      description: 完了前の確認項目
+      value: |
+        - [ ] コーディング規約に準拠
+        - [ ] テスト追加
+        - [ ] lint/format 通過
+        - [ ] ビルド成功
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: ドメイン
+      options:
+        - participant
+        - team
+        - task
+        - web
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: サイズ
+      options:
+        - S (1-2h)
+        - M (半日)
+        - L (1日以上)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stream
+    attributes:
+      label: ストリーム
+      options:
+        - team-domain
+        - task-domain
+        - notification
+        - integration
+        - frontend
+    validations:
+      required: true
