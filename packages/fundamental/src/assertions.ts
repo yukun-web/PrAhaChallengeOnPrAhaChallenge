@@ -100,3 +100,23 @@ export function assertStringLength(
 ): asserts value is string {
   assert(value.length <= maxLength, error);
 }
+
+/**
+ * 指定された文字列が正規表現にマッチするかを検証します。
+ *
+ * @param value 検証する文字列です。
+ * @param regex 検証に使用する正規表現です。
+ * @param error 検証に失敗した場合にスローするエラーです。
+ * @throws {ValidationError} 指定した文字列が正規表現にマッチしない場合は指定された ValidationError をスローします。
+ *
+ * @example
+ * assertRegex("abc", /^[a-z]+$/, error); // OK
+ * assertRegex("ABC", /^[a-z]+$/, error); // ValidationError をスロー
+ */
+export function assertRegex(
+  value: string,
+  regex: RegExp,
+  error: ValidationError,
+): asserts value is string {
+  assert(regex.test(value), error);
+}

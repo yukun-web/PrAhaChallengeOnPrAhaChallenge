@@ -50,6 +50,21 @@ describe("TeamName", () => {
    */
   const TEST_TOO_LONG_NAME = "ab";
 
+  /**
+   * テストに使用する大文字のチーム名です。
+   */
+  const TEST_UPPERCASE_NAME = "A";
+
+  /**
+   * テストに使用する数字のチーム名です。
+   */
+  const TEST_NUMERIC_NAME = "1";
+
+  /**
+   * テストに使用する記号のチーム名です。
+   */
+  const TEST_SYMBOL_NAME = "@";
+
   test("有効な名前から生成できる", () => {
     const teamName = TeamName(TEST_VALID_NAME);
 
@@ -62,6 +77,18 @@ describe("TeamName", () => {
 
   test("1文字を超える場合は ValidationError をスローする", () => {
     expect(() => TeamName(TEST_TOO_LONG_NAME)).toThrow(ValidationError);
+  });
+
+  test("大文字の場合は ValidationError をスローする", () => {
+    expect(() => TeamName(TEST_UPPERCASE_NAME)).toThrow(ValidationError);
+  });
+
+  test("数字の場合は ValidationError をスローする", () => {
+    expect(() => TeamName(TEST_NUMERIC_NAME)).toThrow(ValidationError);
+  });
+
+  test("記号の場合は ValidationError をスローする", () => {
+    expect(() => TeamName(TEST_SYMBOL_NAME)).toThrow(ValidationError);
   });
 });
 
