@@ -1,3 +1,4 @@
+import type { UnwrapNominalRecord } from "@ponp/fundamental";
 import {
   assertNonEmptyString,
   assertStringLength,
@@ -6,6 +7,8 @@ import {
   uuid,
   ValidationError,
 } from "@ponp/fundamental";
+
+import { TeamCreated } from "./events";
 
 /* ---- 型 ---- */
 
@@ -18,6 +21,29 @@ export type TeamId = Nominal<string, "TeamId">;
  * チームの名前です。
  */
 export type TeamName = Nominal<string, "TeamName">;
+
+/**
+ * チームです。
+ */
+export type Team = {
+  /**
+   * チームの識別子です。
+   */
+  id: TeamId;
+
+  /**
+   * チームの名前です。
+   */
+  name: TeamName;
+};
+
+/**
+ * チームのコンストラクターです。
+ */
+export const Team = (params: Team) => {
+  // エンティティ単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
 
 /* ---- ファクトリ関数 ---- */
 
@@ -72,4 +98,49 @@ export const TeamName = (value: string): TeamName => {
   assertStringLength(value, 1, tooLongError);
 
   return value as TeamName;
+};
+
+/* ---- エンティティメソッド ---- */
+
+/**
+ * チームの再構築に必要なパラメータです。
+ */
+export type ReconstructTeamParams = UnwrapNominalRecord<Team>;
+
+/**
+ * チームを再構築するための関数です。
+ *
+ * @param params チームの再構築に必要なパラメータです。
+ * @returns 指定されたパラメータのチームを返します。
+ * @throws {ValidationError} 指定されたプロパティのいずれかが不正な場合にスローされます。
+ * @remarks この関数はリポジトリでのみ使用し、アプリケーション層では用途にあったメソッドを使用してください。
+ */
+Team.reconstruct = (params: ReconstructTeamParams): Team => {
+  return Team({
+    id: TeamId(params.id),
+    name: TeamName(params.name),
+  });
+};
+
+/**
+ * チームの作成に必要なパラメータです。
+ */
+export type CreateTeamParams = Omit<Team, "id">;
+
+/**
+ * チームを作成します。
+ *
+ * @param params チームの作成に必要なパラメータです。
+ * @returns 作成されたチームと作成イベントを返します。
+ * @throws {ValidationError} 指定されたパラメータのいずれかが不正な場合にスローされます。
+ */
+Team.create = (params: CreateTeamParams): [Team, TeamCreated] => {
+  const team = Team({
+    id: TeamId.generate(),
+    name: params.name,
+  });
+
+  const teamCreated = TeamCreated.create(team);
+
+  return [team, teamCreated];
 };
