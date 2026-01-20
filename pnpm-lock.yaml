@@ -273,6 +273,9 @@ importers:
       '@ponp/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@ponp/testing':
+        specifier: workspace:*
+        version: link:../testing
       '@ponp/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
