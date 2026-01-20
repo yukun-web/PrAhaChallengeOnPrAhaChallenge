@@ -1,6 +1,6 @@
 import {
-  assert,
   assertNonEmptyString,
+  assertStringLength,
   assertUUID,
   type Nominal,
   uuid,
@@ -69,7 +69,7 @@ export const TeamName = (value: string): TeamName => {
     field: "TeamName",
     value,
   });
-  assert(value.length <= 1, tooLongError);
+  assertStringLength(value, 1, tooLongError);
 
   return value as TeamName;
 };

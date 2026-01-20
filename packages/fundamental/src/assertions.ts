@@ -80,3 +80,23 @@ export function assertIncludes<T>(
 ): asserts value is T {
   assert(array.includes(value as T), error);
 }
+
+/**
+ * 指定された文字列の長さが指定された最大長以下であることを検証します。
+ *
+ * @param value 検証する文字列です。
+ * @param maxLength 許可される最大の文字数です。
+ * @param error 検証に失敗した場合にスローするエラーです。
+ * @throws {ValidationError} 指定した文字列が最大長を超える場合は指定された ValidationError をスローします。
+ *
+ * @example
+ * assertStringLength("a", 1, error); // OK
+ * assertStringLength("ab", 1, error); // ValidationError をスロー
+ */
+export function assertStringLength(
+  value: string,
+  maxLength: number,
+  error: ValidationError,
+): asserts value is string {
+  assert(value.length <= maxLength, error);
+}
