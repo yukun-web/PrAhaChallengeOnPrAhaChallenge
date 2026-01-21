@@ -140,6 +140,22 @@ TaskStatus.AWAITING_REVIEW = TaskStatus("AWAITING_REVIEW");
  */
 TaskStatus.COMPLETED = TaskStatus("COMPLETED");
 
+/* ---- ヘルパー関数 ---- */
+
+/**
+ * 操作者が課題の所有者であることを検証します。
+ *
+ * @param task 検証対象の課題です。
+ * @param actorId 操作者の識別子です。
+ * @throws {DomainError} 操作者が課題の所有者でない場合にスローされます。
+ */
+const assertIsOwner = (task: Task, actorId: AssigneeId): void => {
+  const notOwnerError = new DomainError("課題の所有者のみステータスを変更できます。", {
+    code: "STATUS_CHANGE_NOT_ALLOWED_FOR_NON_OWNER",
+  });
+  assert(task.assigneeId === actorId, notOwnerError);
+};
+
 /* ---- エンティティ ---- */
 
 /**
@@ -217,10 +233,14 @@ Task.create = (params: CreateTaskParams): [Task, TaskCreated] => {
  * 課題に着手します。
  *
  * @param task 着手する課題です。
+ * @param actorId 操作者の識別子です。
  * @returns 取組中状態の課題と着手イベントを返します。
+ * @throws {DomainError} 操作者が課題の所有者でない場合にスローされます。
  * @throws {DomainError} 課題が未着手状態でない場合にスローされます。
  */
-Task.startProgress = (task: Task): [Task, TaskProgressStarted] => {
+Task.startProgress = (task: Task, actorId: AssigneeId): [Task, TaskProgressStarted] => {
+  assertIsOwner(task, actorId);
+
   const notAllowedError = new DomainError("未着手の課題のみ着手できます。", {
     code: "START_PROGRESS_NOT_ALLOWED",
   });
@@ -240,10 +260,14 @@ Task.startProgress = (task: Task): [Task, TaskProgressStarted] => {
  * 課題をレビューに提出します。
  *
  * @param task レビューに提出する課題です。
+ * @param actorId 操作者の識別子です。
  * @returns レビュー待ち状態の課題と提出イベントを返します。
+ * @throws {DomainError} 操作者が課題の所有者でない場合にスローされます。
  * @throws {DomainError} 課題が取組中状態でない場合にスローされます。
  */
-Task.submitForReview = (task: Task): [Task, TaskSubmittedForReview] => {
+Task.submitForReview = (task: Task, actorId: AssigneeId): [Task, TaskSubmittedForReview] => {
+  assertIsOwner(task, actorId);
+
   const notAllowedError = new DomainError("取組中の課題のみレビューに提出できます。", {
     code: "SUBMIT_FOR_REVIEW_NOT_ALLOWED",
   });
@@ -263,10 +287,14 @@ Task.submitForReview = (task: Task): [Task, TaskSubmittedForReview] => {
  * 課題に修正を依頼します。
  *
  * @param task 修正を依頼する課題です。
+ * @param actorId 操作者の識別子です。
  * @returns 取組中状態の課題と修正依頼イベントを返します。
+ * @throws {DomainError} 操作者が課題の所有者でない場合にスローされます。
  * @throws {DomainError} 課題がレビュー待ち状態でない場合にスローされます。
  */
-Task.requestChanges = (task: Task): [Task, TaskChangesRequested] => {
+Task.requestChanges = (task: Task, actorId: AssigneeId): [Task, TaskChangesRequested] => {
+  assertIsOwner(task, actorId);
+
   const notAllowedError = new DomainError("レビュー待ちの課題のみ修正を依頼できます。", {
     code: "REQUEST_CHANGES_NOT_ALLOWED",
   });
@@ -286,10 +314,14 @@ Task.requestChanges = (task: Task): [Task, TaskChangesRequested] => {
  * 課題を完了します。
  *
  * @param task 完了する課題です。
+ * @param actorId 操作者の識別子です。
  * @returns 完了状態の課題と完了イベントを返します。
+ * @throws {DomainError} 操作者が課題の所有者でない場合にスローされます。
  * @throws {DomainError} 課題がレビュー待ち状態でない場合にスローされます。
  */
-Task.complete = (task: Task): [Task, TaskCompleted] => {
+Task.complete = (task: Task, actorId: AssigneeId): [Task, TaskCompleted] => {
+  assertIsOwner(task, actorId);
+
   const notAllowedError = new DomainError("レビュー待ちの課題のみ完了できます。", {
     code: "COMPLETE_NOT_ALLOWED",
   });
