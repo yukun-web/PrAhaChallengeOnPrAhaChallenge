@@ -14,6 +14,7 @@ export const createDummyParticipant = (params: Partial<ReconstructParticipantPar
     name: "山田 太郎",
     email: "yamada@example.com",
     status: "ACTIVE",
+    teamId: "00000000-0000-0000-0000-000000000000",
     ...params,
   });
 };

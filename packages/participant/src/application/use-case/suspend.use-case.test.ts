@@ -1,7 +1,7 @@
 import { DomainError, ValidationError } from "@ponp/fundamental";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { ParticipantStatus } from "../../domain";
+import { ParticipantStatus, TeamId } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
 import { eventPublisherMock } from "../port/event-publisher.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
@@ -40,6 +40,7 @@ describe("参加者休会ユースケース", () => {
     expect(participantRepositoryMock.save).toHaveBeenCalledExactlyOnceWith({
       ...participant,
       status: ParticipantStatus.SUSPENDED,
+      teamId: TeamId.NONE,
     });
   });
 
