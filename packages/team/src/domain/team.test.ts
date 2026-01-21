@@ -1,8 +1,8 @@
-import { ValidationError } from "@ponp/fundamental";
+import { DomainError, ValidationError } from "@ponp/fundamental";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TeamEventType } from "./events";
-import { Team, TeamId, TeamName } from "./team";
+import { ParticipantId, Team, TeamId, TeamName } from "./team";
 
 describe("TeamId", () => {
   /**
@@ -124,13 +124,17 @@ describe("Team", () => {
 
   describe("reconstruct", () => {
     test("チームを再構築できる", () => {
+      const participantId = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
       const team = Team.reconstruct({
         id: TEST_VALID_UUID,
         name: TEST_VALID_NAME,
+        participantIds: [participantId],
       });
 
       expect(team.id).toBe(TEST_VALID_UUID);
       expect(team.name).toBe(TEST_VALID_NAME);
+      expect(team.participantIds).toHaveLength(1);
+      expect(team.participantIds[0]).toBe(participantId);
     });
 
     test("無効な ID の場合は ValidationError をスローする", () => {
@@ -138,6 +142,7 @@ describe("Team", () => {
         Team.reconstruct({
           id: "invalid-uuid",
           name: TEST_VALID_NAME,
+          participantIds: [],
         }),
       ).toThrow(ValidationError);
     });
@@ -147,8 +152,84 @@ describe("Team", () => {
         Team.reconstruct({
           id: TEST_VALID_UUID,
           name: "",
+          participantIds: [],
         }),
       ).toThrow(ValidationError);
+    });
+  });
+
+  describe("join", () => {
+    test("参加者をチームに参加させられる", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId = ParticipantId.generate();
+
+      const [updatedTeam, event] = Team.join(team, participantId);
+
+      expect(updatedTeam.participantIds).toHaveLength(1);
+      expect(updatedTeam.participantIds[0]).toBe(participantId);
+      expect(event.type).toBe(TeamEventType.PARTICIPANT_JOINED);
+      expect(event.teamId).toBe(team.id);
+      expect(event.participantId).toBe(participantId);
+      expect(event.joinedAt).toBeInstanceOf(Date);
+    });
+
+    test("複数の参加者をチームに参加させられる", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId1 = ParticipantId.generate();
+      const participantId2 = ParticipantId.generate();
+
+      const [teamWithOne] = Team.join(team, participantId1);
+      const [teamWithTwo] = Team.join(teamWithOne, participantId2);
+
+      expect(teamWithTwo.participantIds).toHaveLength(2);
+      expect(teamWithTwo.participantIds).toContain(participantId1);
+      expect(teamWithTwo.participantIds).toContain(participantId2);
+    });
+
+    test("既に所属している参加者を参加させようとすると DomainError をスローする", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId = ParticipantId.generate();
+
+      const [updatedTeam] = Team.join(team, participantId);
+
+      expect(() => Team.join(updatedTeam, participantId)).toThrow(DomainError);
+    });
+  });
+
+  describe("leave", () => {
+    test("参加者をチームから離脱させられる", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId = ParticipantId.generate();
+      const [teamWithParticipant] = Team.join(team, participantId);
+
+      const [updatedTeam, event] = Team.leave(teamWithParticipant, participantId);
+
+      expect(updatedTeam.participantIds).toHaveLength(0);
+      expect(event.type).toBe(TeamEventType.PARTICIPANT_LEFT);
+      expect(event.teamId).toBe(team.id);
+      expect(event.participantId).toBe(participantId);
+      expect(event.leftAt).toBeInstanceOf(Date);
+    });
+
+    test("複数の参加者がいる場合、指定した参加者のみが離脱する", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId1 = ParticipantId.generate();
+      const participantId2 = ParticipantId.generate();
+      const [teamWithOne] = Team.join(team, participantId1);
+      const [teamWithTwo] = Team.join(teamWithOne, participantId2);
+
+      const [updatedTeam] = Team.leave(teamWithTwo, participantId1);
+
+      expect(updatedTeam.participantIds).toHaveLength(1);
+      expect(updatedTeam.participantIds).not.toContain(participantId1);
+      expect(updatedTeam.participantIds).toContain(participantId2);
+    });
+
+    test("所属していない参加者を離脱させようとすると DomainError をスローする", () => {
+      const [team] = Team.create({ name: TeamName(TEST_VALID_NAME) });
+      const participantId = ParticipantId.generate();
+
+      expect(() => Team.leave(team, participantId)).toThrow(DomainError);
     });
   });
 });

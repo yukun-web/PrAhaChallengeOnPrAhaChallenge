@@ -1,7 +1,7 @@
 import type { UnwrapNominalRecord } from "@ponp/fundamental";
 
 import type { Team } from "./team";
-import { TeamId, TeamName } from "./team";
+import { ParticipantId, TeamId, TeamName } from "./team";
 
 /* ---- イベントタイプ定数 ---- */
 
@@ -10,6 +10,8 @@ import { TeamId, TeamName } from "./team";
  */
 export const TeamEventType = {
   CREATED: "TEAM_CREATED",
+  PARTICIPANT_JOINED: "PARTICIPANT_JOINED_TEAM",
+  PARTICIPANT_LEFT: "PARTICIPANT_LEFT_TEAM",
 } as const;
 
 /* ---- 型 ---- */
@@ -42,9 +44,63 @@ export type TeamCreated = {
 };
 
 /**
+ * 参加者がチームに参加したことを表すイベントです。
+ */
+export type ParticipantJoinedTeam = {
+  /**
+   * イベントのタイプです。
+   */
+  type: typeof TeamEventType.PARTICIPANT_JOINED;
+
+  /**
+   * 参加先のチームの識別子です。
+   * @see TeamId
+   */
+  teamId: TeamId;
+
+  /**
+   * 参加した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 参加した日時です。
+   */
+  joinedAt: Date;
+};
+
+/**
+ * 参加者がチームから離脱したことを表すイベントです。
+ */
+export type ParticipantLeftTeam = {
+  /**
+   * イベントのタイプです。
+   */
+  type: typeof TeamEventType.PARTICIPANT_LEFT;
+
+  /**
+   * 離脱元のチームの識別子です。
+   * @see TeamId
+   */
+  teamId: TeamId;
+
+  /**
+   * 離脱した参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * 離脱した日時です。
+   */
+  leftAt: Date;
+};
+
+/**
  * チームコンテキストのすべてのドメインイベントのユニオンです。
  */
-export type TeamEvent = TeamCreated;
+export type TeamEvent = TeamCreated | ParticipantJoinedTeam | ParticipantLeftTeam;
 
 /* ---- ファクトリ関数 ---- */
 
@@ -91,5 +147,107 @@ TeamCreated.create = (team: Team): TeamCreated => {
     teamId: team.id,
     name: team.name,
     createdAt: new Date(),
+  });
+};
+
+/* ---- ParticipantJoinedTeam ファクトリ関数 ---- */
+
+/**
+ * 参加者がチームに参加したイベントの再構築に必要なパラメータです。
+ */
+type ParticipantJoinedTeamReconstructParams = UnwrapNominalRecord<ParticipantJoinedTeam>;
+
+/**
+ * 参加者がチームに参加したイベントのコンストラクタです。
+ *
+ * @param params 参加者がチームに参加したイベントのパラメータです。
+ * @returns 参加者がチームに参加したイベントのインスタンスを返します。
+ */
+export const ParticipantJoinedTeam = (params: ParticipantJoinedTeam) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
+ * 参加者がチームに参加したイベントのファクトリ関数です。
+ *
+ * @param params 参加者がチームに参加したイベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された参加イベントを返します。
+ */
+ParticipantJoinedTeam.reconstruct = (
+  params: ParticipantJoinedTeamReconstructParams,
+): ParticipantJoinedTeam => {
+  return ParticipantJoinedTeam({
+    type: TeamEventType.PARTICIPANT_JOINED,
+    teamId: TeamId(params.teamId),
+    participantId: ParticipantId(params.participantId),
+    joinedAt: params.joinedAt,
+  });
+};
+
+/**
+ * 指定したチームと参加者に対する参加イベントを作成します。
+ *
+ * @param team 対象のチームです。
+ * @param participantId 参加した参加者の識別子です。
+ * @returns 新しい参加イベントを返します。
+ */
+ParticipantJoinedTeam.create = (team: Team, participantId: ParticipantId): ParticipantJoinedTeam => {
+  return ParticipantJoinedTeam({
+    type: TeamEventType.PARTICIPANT_JOINED,
+    teamId: team.id,
+    participantId,
+    joinedAt: new Date(),
+  });
+};
+
+/* ---- ParticipantLeftTeam ファクトリ関数 ---- */
+
+/**
+ * 参加者がチームから離脱したイベントの再構築に必要なパラメータです。
+ */
+type ParticipantLeftTeamReconstructParams = UnwrapNominalRecord<ParticipantLeftTeam>;
+
+/**
+ * 参加者がチームから離脱したイベントのコンストラクタです。
+ *
+ * @param params 参加者がチームから離脱したイベントのパラメータです。
+ * @returns 参加者がチームから離脱したイベントのインスタンスを返します。
+ */
+export const ParticipantLeftTeam = (params: ParticipantLeftTeam) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
+ * 参加者がチームから離脱したイベントのファクトリ関数です。
+ *
+ * @param params 参加者がチームから離脱したイベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換された離脱イベントを返します。
+ */
+ParticipantLeftTeam.reconstruct = (
+  params: ParticipantLeftTeamReconstructParams,
+): ParticipantLeftTeam => {
+  return ParticipantLeftTeam({
+    type: TeamEventType.PARTICIPANT_LEFT,
+    teamId: TeamId(params.teamId),
+    participantId: ParticipantId(params.participantId),
+    leftAt: params.leftAt,
+  });
+};
+
+/**
+ * 指定したチームと参加者に対する離脱イベントを作成します。
+ *
+ * @param team 対象のチームです。
+ * @param participantId 離脱した参加者の識別子です。
+ * @returns 新しい離脱イベントを返します。
+ */
+ParticipantLeftTeam.create = (team: Team, participantId: ParticipantId): ParticipantLeftTeam => {
+  return ParticipantLeftTeam({
+    type: TeamEventType.PARTICIPANT_LEFT,
+    teamId: team.id,
+    participantId,
+    leftAt: new Date(),
   });
 };
