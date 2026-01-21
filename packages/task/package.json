@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@ponp/eslint-config": "workspace:*",
+    "@ponp/testing": "workspace:*",
     "@ponp/typescript-config": "workspace:*",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3",
