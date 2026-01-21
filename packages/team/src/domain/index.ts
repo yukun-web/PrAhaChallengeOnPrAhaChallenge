@@ -15,3 +15,5 @@ export type {
   TeamCreated as TeamCreatedType,
   TeamEvent,
 } from "./events";
+
+export { createDummyTeam } from "./testing";
