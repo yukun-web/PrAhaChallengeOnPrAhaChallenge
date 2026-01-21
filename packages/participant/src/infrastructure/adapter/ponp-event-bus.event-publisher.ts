@@ -5,6 +5,7 @@ import {
   ParticipantEnrolledEvent,
   ParticipantReactivatedEvent,
   ParticipantSuspendedEvent,
+  ParticipantTeamAssignedEvent,
   ParticipantWithdrawnEvent,
 } from "@ponp/integration-events";
 
@@ -14,6 +15,7 @@ import type {
   ParticipantEvent,
   ParticipantReactivated,
   ParticipantSuspended,
+  ParticipantTeamAssigned,
   ParticipantWithdrawn,
 } from "../../domain";
 import { ParticipantEventType } from "../../domain";
@@ -25,7 +27,8 @@ type IntegrationEvent =
   | ParticipantEnrolledEvent
   | ParticipantSuspendedEvent
   | ParticipantReactivatedEvent
-  | ParticipantWithdrawnEvent;
+  | ParticipantWithdrawnEvent
+  | ParticipantTeamAssignedEvent;
 
 /**
  * ドメインイベントを統合イベントに変換する関数のマップです。
@@ -45,6 +48,7 @@ const converters: {
     ParticipantSuspendedEvent({
       participantId: event.participantId,
       name: event.name,
+      previousTeamId: event.previousTeamId,
       suspendedAt: event.suspendedAt,
     }),
   [ParticipantEventType.REACTIVATED]: (event: ParticipantReactivated) =>
@@ -57,7 +61,15 @@ const converters: {
     ParticipantWithdrawnEvent({
       participantId: event.participantId,
       name: event.name,
+      previousTeamId: event.previousTeamId,
       withdrawnAt: event.withdrawnAt,
+    }),
+  [ParticipantEventType.TEAM_ASSIGNED]: (event: ParticipantTeamAssigned) =>
+    ParticipantTeamAssignedEvent({
+      participantId: event.participantId,
+      name: event.name,
+      teamId: event.teamId,
+      assignedAt: event.assignedAt,
     }),
 };
 

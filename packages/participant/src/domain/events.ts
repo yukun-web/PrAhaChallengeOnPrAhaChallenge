@@ -1,7 +1,7 @@
 import type { UnwrapNominalRecord } from "@ponp/fundamental";
 
 import type { Participant } from "./participant";
-import { ParticipantId, ParticipantName } from "./participant";
+import { ParticipantId, ParticipantName, TeamId } from "./participant";
 
 /* ---- イベントタイプ定数 ---- */
 
@@ -13,6 +13,7 @@ export const ParticipantEventType = {
   SUSPENDED: "PARTICIPANT_SUSPENDED",
   REACTIVATED: "PARTICIPANT_REACTIVATED",
   WITHDRAWN: "PARTICIPANT_WITHDRAWN",
+  TEAM_ASSIGNED: "PARTICIPANT_TEAM_ASSIGNED",
 } as const;
 
 /* ---- 型 ---- */
@@ -64,6 +65,12 @@ export type ParticipantSuspended = {
    * @see ParticipantName
    */
   name: ParticipantName;
+
+  /**
+   * 休会前に所属していたチームの識別子です。
+   * @see TeamId
+   */
+  previousTeamId: TeamId;
 
   /**
    * 休会した日時です。
@@ -120,9 +127,48 @@ export type ParticipantWithdrawn = {
   name: ParticipantName;
 
   /**
+   * 退会前に所属していたチームの識別子です。
+   * @see TeamId
+   */
+  previousTeamId: TeamId;
+
+  /**
    * 退会した日時です。
    */
   withdrawnAt: Date;
+};
+
+/**
+ * 参加者がチームに割り当てられたことを表すイベントです。
+ */
+export type ParticipantTeamAssigned = {
+  /**
+   * イベントのタイプです。
+   */
+  type: typeof ParticipantEventType.TEAM_ASSIGNED;
+
+  /**
+   * チームに割り当てられた参加者の識別子です。
+   * @see ParticipantId
+   */
+  participantId: ParticipantId;
+
+  /**
+   * チームに割り当てられた参加者の名前です。
+   * @see ParticipantName
+   */
+  name: ParticipantName;
+
+  /**
+   * 割り当てられたチームの識別子です。
+   * @see TeamId
+   */
+  teamId: TeamId;
+
+  /**
+   * チームに割り当てられた日時です。
+   */
+  assignedAt: Date;
 };
 
 /**
@@ -132,7 +178,8 @@ export type ParticipantEvent =
   | ParticipantEnrolled
   | ParticipantSuspended
   | ParticipantReactivated
-  | ParticipantWithdrawn;
+  | ParticipantWithdrawn
+  | ParticipantTeamAssigned;
 
 /* ---- ファクトリ関数 ---- */
 
@@ -210,21 +257,38 @@ ParticipantSuspended.reconstruct = (
     type: ParticipantEventType.SUSPENDED,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
+    previousTeamId: TeamId(params.previousTeamId),
     suspendedAt: params.suspendedAt,
   });
 };
 
 /**
+ * 休会イベント作成のパラメータです。
+ */
+type CreateParticipantSuspendedParams = {
+  /**
+   * 対象の参加者です。
+   */
+  participant: Participant;
+
+  /**
+   * 休会前に所属していたチームの識別子です。
+   */
+  previousTeamId: TeamId;
+};
+
+/**
  * 指定した参加者に対する休会イベントを作成します。
  *
- * @param participant 対象の参加者です。
+ * @param params 休会イベント作成のパラメータです。
  * @returns 新しい休会イベントを返します。
  */
-ParticipantSuspended.create = (participant: Participant): ParticipantSuspended => {
+ParticipantSuspended.create = (params: CreateParticipantSuspendedParams): ParticipantSuspended => {
   return ParticipantSuspended({
     type: ParticipantEventType.SUSPENDED,
-    participantId: participant.id,
-    name: participant.name,
+    participantId: params.participant.id,
+    name: params.participant.name,
+    previousTeamId: params.previousTeamId,
     suspendedAt: new Date(),
   });
 };
@@ -300,21 +364,85 @@ ParticipantWithdrawn.reconstruct = (
     type: ParticipantEventType.WITHDRAWN,
     participantId: ParticipantId(params.participantId),
     name: ParticipantName(params.name),
+    previousTeamId: TeamId(params.previousTeamId),
     withdrawnAt: params.withdrawnAt,
   });
 };
 
 /**
+ * 退会イベント作成のパラメータです。
+ */
+type CreateParticipantWithdrawnParams = {
+  /**
+   * 対象の参加者です。
+   */
+  participant: Participant;
+
+  /**
+   * 退会前に所属していたチームの識別子です。
+   */
+  previousTeamId: TeamId;
+};
+
+/**
  * 指定した参加者に対する退会イベントを作成します。
  *
- * @param participant 対象の参加者です。
+ * @param params 退会イベント作成のパラメータです。
  * @returns 新しい退会イベントを返します。
  */
-ParticipantWithdrawn.create = (participant: Participant): ParticipantWithdrawn => {
+ParticipantWithdrawn.create = (params: CreateParticipantWithdrawnParams): ParticipantWithdrawn => {
   return ParticipantWithdrawn({
     type: ParticipantEventType.WITHDRAWN,
+    participantId: params.participant.id,
+    name: params.participant.name,
+    previousTeamId: params.previousTeamId,
+    withdrawnAt: new Date(),
+  });
+};
+
+/**
+ * 参加者のチーム割り当てイベントの再構築に必要なパラメータです。
+ */
+type ParticipantTeamAssignedReconstructParams = UnwrapNominalRecord<ParticipantTeamAssigned>;
+
+/**
+ * 参加者のチーム割り当てイベントのコンストラクターです。
+ */
+export const ParticipantTeamAssigned = (params: ParticipantTeamAssigned) => {
+  // イベント単位でのバリデーションなどがあればここに記述する。
+  return params;
+};
+
+/**
+ * 参加者のチーム割り当てイベントのファクトリ関数です。
+ *
+ * @param params 参加者のチーム割り当てイベントの再構築に必要なパラメータです。
+ * @returns 値オブジェクトに変換されたチーム割り当てイベントを返します。
+ */
+ParticipantTeamAssigned.reconstruct = (
+  params: ParticipantTeamAssignedReconstructParams,
+): ParticipantTeamAssigned => {
+  return ParticipantTeamAssigned({
+    type: ParticipantEventType.TEAM_ASSIGNED,
+    participantId: ParticipantId(params.participantId),
+    name: ParticipantName(params.name),
+    teamId: TeamId(params.teamId),
+    assignedAt: params.assignedAt,
+  });
+};
+
+/**
+ * 指定した参加者に対するチーム割り当てイベントを作成します。
+ *
+ * @param participant 対象の参加者です。
+ * @returns 新しいチーム割り当てイベントを返します。
+ */
+ParticipantTeamAssigned.create = (participant: Participant): ParticipantTeamAssigned => {
+  return ParticipantTeamAssigned({
+    type: ParticipantEventType.TEAM_ASSIGNED,
     participantId: participant.id,
     name: participant.name,
-    withdrawnAt: new Date(),
+    teamId: participant.teamId,
+    assignedAt: new Date(),
   });
 };

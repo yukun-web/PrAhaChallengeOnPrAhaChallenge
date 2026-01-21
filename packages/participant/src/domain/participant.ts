@@ -15,6 +15,7 @@ import {
   ParticipantEnrolled,
   ParticipantReactivated,
   ParticipantSuspended,
+  ParticipantTeamAssigned,
   ParticipantWithdrawn,
 } from "./events";
 
@@ -310,13 +311,18 @@ Participant.suspend = (participant: Participant): [Participant, ParticipantSuspe
   });
   assert(Participant.isActive(participant), notAllowedError);
 
+  const previousTeamId = participant.teamId;
+
   const suspended = Participant({
     ...participant,
     status: ParticipantStatus.SUSPENDED,
     teamId: TeamId.NONE,
   });
 
-  const participantSuspended = ParticipantSuspended.create(suspended);
+  const participantSuspended = ParticipantSuspended.create({
+    participant: suspended,
+    previousTeamId,
+  });
 
   return [suspended, participantSuspended];
 };
@@ -357,13 +363,18 @@ Participant.withdraw = (participant: Participant): [Participant, ParticipantWith
   });
   assert(!Participant.isWithdrawn(participant), alreadyWithdrawnError);
 
+  const previousTeamId = participant.teamId;
+
   const withdrawn = Participant({
     ...participant,
     status: ParticipantStatus.WITHDRAWN,
     teamId: TeamId.NONE,
   });
 
-  const participantWithdrawn = ParticipantWithdrawn.create(withdrawn);
+  const participantWithdrawn = ParticipantWithdrawn.create({
+    participant: withdrawn,
+    previousTeamId,
+  });
 
   return [withdrawn, participantWithdrawn];
 };
@@ -396,4 +407,31 @@ Participant.isSuspended = (participant: Participant): boolean => {
  */
 Participant.isWithdrawn = (participant: Participant): boolean => {
   return participant.status === ParticipantStatus.WITHDRAWN;
+};
+
+/**
+ * 参加者をチームに割り当てます。
+ *
+ * @param participant 割り当てる参加者です。
+ * @param teamId 割り当てるチームの識別子です。
+ * @returns チームに割り当てられた参加者とチーム割り当てイベントを返します。
+ * @throws {DomainError} 指定した参加者が在籍中でない場合にスローされます。
+ */
+Participant.assignTeam = (
+  participant: Participant,
+  teamId: TeamId,
+): [Participant, ParticipantTeamAssigned] => {
+  const notActiveError = new DomainError("在籍中の参加者のみチームに割り当てできます。", {
+    code: "ASSIGN_TEAM_NOT_ALLOWED_FOR_NON_ACTIVE",
+  });
+  assert(Participant.isActive(participant), notActiveError);
+
+  const assigned = Participant({
+    ...participant,
+    teamId,
+  });
+
+  const participantTeamAssigned = ParticipantTeamAssigned.create(assigned);
+
+  return [assigned, participantTeamAssigned];
 };

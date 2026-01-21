@@ -12,7 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ponp/fundamental": "workspace:*"
+    "@ponp/fundamental": "workspace:*",
+    "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {
     "@ponp/eslint-config": "workspace:*",

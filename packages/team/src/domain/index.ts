@@ -9,3 +9,25 @@ export type {
 
 export { TeamCreated, TeamEventType } from "./events";
 export type { TeamCreated as TeamCreatedType, TeamEvent } from "./events";
+
+export {
+  generateNextTeamName,
+  selectTeamWithMinMembers,
+  splitTeamMembers,
+} from "./team-assignment.service";
+export type {
+  TeamMemberInfo,
+  TeamSplitResult,
+  TeamWithMemberCount,
+} from "./team-assignment.service";
+
+export { isTeamConsistencyOK } from "./team-consistency";
+export type {
+  NoMergeTarget,
+  ParticipantInfo,
+  TeamConsistencyCheckResult,
+  TeamConsistencyOK,
+  TeamNeedsMerge,
+  TeamOverMaximum,
+  TeamUnderMinimum,
+} from "./team-consistency";

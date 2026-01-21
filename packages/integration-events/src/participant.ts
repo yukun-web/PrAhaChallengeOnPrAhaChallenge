@@ -16,6 +16,7 @@ export const ParticipantEnrolledSchema = z.object({
 export const ParticipantSuspendedSchema = z.object({
   participantId: z.string().uuid(),
   name: z.string().min(1),
+  previousTeamId: z.string().uuid(),
   suspendedAt: z.coerce.date(),
 });
 
@@ -34,7 +35,18 @@ export const ParticipantReactivatedSchema = z.object({
 export const ParticipantWithdrawnSchema = z.object({
   participantId: z.string().uuid(),
   name: z.string().min(1),
+  previousTeamId: z.string().uuid(),
   withdrawnAt: z.coerce.date(),
+});
+
+/**
+ * 参加者のチーム割り当てイベントのペイロードスキーマです。
+ */
+export const ParticipantTeamAssignedSchema = z.object({
+  participantId: z.string().uuid(),
+  name: z.string().min(1),
+  teamId: z.string().uuid(),
+  assignedAt: z.coerce.date(),
 });
 
 /**
@@ -70,6 +82,14 @@ export const ParticipantWithdrawnEvent = createEventConstructor(
 );
 
 /**
+ * 参加者のチーム割り当てイベントのコンストラクタです。
+ */
+export const ParticipantTeamAssignedEvent = createEventConstructor(
+  "PARTICIPANT_TEAM_ASSIGNED",
+  ParticipantTeamAssignedSchema,
+);
+
+/**
  * 参加者の入会イベントのペイロード型です。
  */
 export type ParticipantEnrolledPayload = z.infer<typeof ParticipantEnrolledSchema>;
@@ -85,6 +105,10 @@ export type ParticipantReactivatedPayload = z.infer<typeof ParticipantReactivate
  * 参加者の退会イベントのペイロード型です。
  */
 export type ParticipantWithdrawnPayload = z.infer<typeof ParticipantWithdrawnSchema>;
+/**
+ * 参加者のチーム割り当てイベントのペイロード型です。
+ */
+export type ParticipantTeamAssignedPayload = z.infer<typeof ParticipantTeamAssignedSchema>;
 
 /**
  * 参加者の入会イベントの型です。
@@ -102,6 +126,10 @@ export type ParticipantReactivatedEvent = ReturnType<typeof ParticipantReactivat
  * 参加者の退会イベントの型です。
  */
 export type ParticipantWithdrawnEvent = ReturnType<typeof ParticipantWithdrawnEvent>;
+/**
+ * 参加者のチーム割り当てイベントの型です。
+ */
+export type ParticipantTeamAssignedEvent = ReturnType<typeof ParticipantTeamAssignedEvent>;
 
 /**
  * 参加者コンテキストの統合イベントのユニオン型です。
@@ -110,4 +138,5 @@ export type ParticipantIntegrationEvent =
   | ParticipantEnrolledEvent
   | ParticipantSuspendedEvent
   | ParticipantReactivatedEvent
-  | ParticipantWithdrawnEvent;
+  | ParticipantWithdrawnEvent
+  | ParticipantTeamAssignedEvent;
