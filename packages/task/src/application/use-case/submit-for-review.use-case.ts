@@ -70,11 +70,7 @@ export const createSubmitForReviewUseCase = (
       throw new DomainError("指定した課題が存在しません。", { code: "TASK_NOT_FOUND" });
     }
 
-    if (task.assigneeId !== requesterId) {
-      throw new DomainError("課題の所有者のみが操作できます。", { code: "NOT_TASK_OWNER" });
-    }
-
-    const [submittedTask, taskSubmittedForReview] = Task.submitForReview(task);
+    const [submittedTask, taskSubmittedForReview] = Task.submitForReview(task, requesterId);
 
     await taskRepository.save(submittedTask);
     await eventPublisher.publish(taskSubmittedForReview);

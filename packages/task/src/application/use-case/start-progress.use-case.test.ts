@@ -116,7 +116,7 @@ describe("課題着手ユースケース", () => {
       });
 
     await expect(act).rejects.toBeInstanceOf(DomainError);
-    await expect(act).rejects.toMatchObject({ code: "NOT_TASK_OWNER" });
+    await expect(act).rejects.toMatchObject({ code: "STATUS_CHANGE_NOT_ALLOWED_FOR_NON_OWNER" });
     expect(taskRepositoryMock.save).not.toHaveBeenCalled();
     expect(eventPublisherMock.publish).not.toHaveBeenCalled();
   });

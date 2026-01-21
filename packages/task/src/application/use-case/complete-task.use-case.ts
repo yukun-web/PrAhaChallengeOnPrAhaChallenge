@@ -70,11 +70,7 @@ export const createCompleteTaskUseCase = (
       throw new DomainError("指定した課題が存在しません。", { code: "TASK_NOT_FOUND" });
     }
 
-    if (task.assigneeId !== requesterId) {
-      throw new DomainError("課題の所有者のみが操作できます。", { code: "NOT_TASK_OWNER" });
-    }
-
-    const [completedTask, taskCompleted] = Task.complete(task);
+    const [completedTask, taskCompleted] = Task.complete(task, requesterId);
 
     await taskRepository.save(completedTask);
     await eventPublisher.publish(taskCompleted);
