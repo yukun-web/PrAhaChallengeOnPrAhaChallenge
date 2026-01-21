@@ -2,7 +2,7 @@ import { DomainError, ValidationError } from "@ponp/fundamental";
 import { spyUuid } from "@ponp/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { ParticipantStatus } from "../../domain";
+import { ParticipantStatus, TeamId } from "../../domain";
 import { createDummyParticipant } from "../../domain/testing";
 import { eventPublisherMock } from "../port/event-publisher.mock";
 import { participantRepositoryMock } from "../port/participant.repository.mock";
@@ -53,6 +53,7 @@ describe("参加者入会ユースケース", () => {
       name: TEST_PARTICIPANT_NAME,
       email: TEST_PARTICIPANT_EMAIL,
       status: ParticipantStatus.ACTIVE,
+      teamId: TeamId.NONE,
     });
   });
 
