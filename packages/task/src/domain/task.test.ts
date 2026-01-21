@@ -139,7 +139,7 @@ describe("Task", () => {
 
   describe("Task.startProgress", () => {
     test("未着手の課題に着手できる", () => {
-      const task = createDummyTask({ status: "NOT_STARTED" });
+      const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
 
       const [started, event] = Task.startProgress(task);
 
@@ -148,7 +148,7 @@ describe("Task", () => {
     });
 
     test("未着手でない課題に着手しようとすると DomainError をスローする", () => {
-      const task = createDummyTask({ status: "IN_PROGRESS" });
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
       expect(() => Task.startProgress(task)).toThrow(DomainError);
     });
@@ -156,7 +156,7 @@ describe("Task", () => {
 
   describe("Task.submitForReview", () => {
     test("取組中の課題をレビューに提出できる", () => {
-      const task = createDummyTask({ status: "IN_PROGRESS" });
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
       const [submitted, event] = Task.submitForReview(task);
 
@@ -165,7 +165,7 @@ describe("Task", () => {
     });
 
     test("取組中でない課題をレビューに提出しようとすると DomainError をスローする", () => {
-      const task = createDummyTask({ status: "NOT_STARTED" });
+      const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
 
       expect(() => Task.submitForReview(task)).toThrow(DomainError);
     });
@@ -173,7 +173,7 @@ describe("Task", () => {
 
   describe("Task.requestChanges", () => {
     test("レビュー待ちの課題に修正を依頼できる", () => {
-      const task = createDummyTask({ status: "AWAITING_REVIEW" });
+      const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
 
       const [changesRequested, event] = Task.requestChanges(task);
 
@@ -182,7 +182,7 @@ describe("Task", () => {
     });
 
     test("レビュー待ちでない課題に修正を依頼しようとすると DomainError をスローする", () => {
-      const task = createDummyTask({ status: "IN_PROGRESS" });
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
       expect(() => Task.requestChanges(task)).toThrow(DomainError);
     });
@@ -190,7 +190,7 @@ describe("Task", () => {
 
   describe("Task.complete", () => {
     test("レビュー待ちの課題を完了できる", () => {
-      const task = createDummyTask({ status: "AWAITING_REVIEW" });
+      const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
 
       const [completed, event] = Task.complete(task);
 
@@ -199,13 +199,13 @@ describe("Task", () => {
     });
 
     test("レビュー待ちでない課題を完了しようとすると DomainError をスローする", () => {
-      const task = createDummyTask({ status: "IN_PROGRESS" });
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
       expect(() => Task.complete(task)).toThrow(DomainError);
     });
 
     test("完了済みの課題は変更できない", () => {
-      const task = createDummyTask({ status: "COMPLETED" });
+      const task = createDummyTask({ status: TaskStatus.COMPLETED });
 
       expect(() => Task.complete(task)).toThrow(DomainError);
     });
@@ -213,7 +213,7 @@ describe("Task", () => {
 
   describe("状態判定メソッド", () => {
     test("isNotStarted は未着手の場合に true を返す", () => {
-      const task = createDummyTask({ status: "NOT_STARTED" });
+      const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
 
       expect(Task.isNotStarted(task)).toBe(true);
       expect(Task.isInProgress(task)).toBe(false);
@@ -222,7 +222,7 @@ describe("Task", () => {
     });
 
     test("isInProgress は取組中の場合に true を返す", () => {
-      const task = createDummyTask({ status: "IN_PROGRESS" });
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
       expect(Task.isNotStarted(task)).toBe(false);
       expect(Task.isInProgress(task)).toBe(true);
@@ -231,7 +231,7 @@ describe("Task", () => {
     });
 
     test("isAwaitingReview はレビュー待ちの場合に true を返す", () => {
-      const task = createDummyTask({ status: "AWAITING_REVIEW" });
+      const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
 
       expect(Task.isNotStarted(task)).toBe(false);
       expect(Task.isInProgress(task)).toBe(false);
@@ -240,7 +240,7 @@ describe("Task", () => {
     });
 
     test("isCompleted は完了の場合に true を返す", () => {
-      const task = createDummyTask({ status: "COMPLETED" });
+      const task = createDummyTask({ status: TaskStatus.COMPLETED });
 
       expect(Task.isNotStarted(task)).toBe(false);
       expect(Task.isInProgress(task)).toBe(false);
