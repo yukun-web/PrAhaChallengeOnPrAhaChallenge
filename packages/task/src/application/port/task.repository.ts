@@ -1,4 +1,4 @@
-import type { Task, TaskId } from "../../domain";
+import type { AssigneeId, Task, TaskId } from "../../domain";
 
 /**
  * 課題リポジトリのインターフェースです。
@@ -20,4 +20,21 @@ export type TaskRepository = {
    * @throws {InfrastructureError} 取得に失敗した場合はエラーをスローします。
    */
   findById: (id: TaskId) => Promise<Task | undefined>;
+
+  /**
+   * 担当者 ID から課題一覧を取得します。
+   *
+   * @param assigneeId 検索する担当者の ID です。
+   * @returns 担当者に紐づく課題の一覧を返します。
+   * @throws {InfrastructureError} 取得に失敗した場合はエラーをスローします。
+   */
+  findByAssigneeId: (assigneeId: AssigneeId) => Promise<Task[]>;
+
+  /**
+   * 課題を削除します。
+   *
+   * @param id 削除する課題の ID です。
+   * @throws {InfrastructureError} 削除に失敗した場合はエラーをスローします。
+   */
+  delete: (id: TaskId) => Promise<void>;
 };

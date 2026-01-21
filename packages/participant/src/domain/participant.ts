@@ -46,6 +46,11 @@ export type ParticipantEmail = Nominal<string, "ParticipantEmail">;
 export type ParticipantStatus = Nominal<"ACTIVE" | "SUSPENDED" | "WITHDRAWN", "ParticipantStatus">;
 
 /**
+ * チームの識別子です。
+ */
+export type TeamId = Nominal<string, "TeamId">;
+
+/**
  * 参加者です。
  */
 export type Participant = {
@@ -68,13 +73,22 @@ export type Participant = {
    * 参加者の在籍ステータスです。
    */
   status: ParticipantStatus;
+
+  /**
+   * 所属チームの識別子です。
+   */
+  teamId: TeamId;
 };
 
 /**
  * 参加者のコンストラクターです。
  */
 export const Participant = (params: Participant) => {
-  // エンティティ単位でのバリデーションなどがあればここに記述する。
+  if (!Participant.isActive(params) && TeamId.isAssigned(params.teamId)) {
+    throw new DomainError("在籍中でない参加者はチームに所属できません。", {
+      code: "NON_ACTIVE_PARTICIPANT_CANNOT_HAVE_TEAM",
+    });
+  }
   return params;
 };
 
@@ -177,6 +191,64 @@ ParticipantStatus.SUSPENDED = ParticipantStatus("SUSPENDED");
 ParticipantStatus.WITHDRAWN = ParticipantStatus("WITHDRAWN");
 
 /**
+ * nil UUID を表す定数です。チーム未所属を表すために使用します。
+ */
+const NIL_UUID = "00000000-0000-0000-0000-000000000000";
+
+/**
+ * チームの識別子のファクトリ関数です。
+ *
+ * @param value チームの識別子の文字列です。
+ * @returns 指定された文字列がチームの識別子として有効であれば、その文字列を公称型にして返します。
+ * @throws {ValidationError} 指定された文字列がチームの識別子の形式と一致しない場合にスローされます。
+ */
+export const TeamId = (value: string): TeamId => {
+  // nil UUID はチーム未所属を表す特別な値として許可する
+  if (value === NIL_UUID) {
+    return value as TeamId;
+  }
+
+  const invalidFormatError = new ValidationError({
+    code: "INVALID_TEAM_ID_FORMAT",
+    field: "TeamId",
+    value,
+  });
+  assertUUID(value, invalidFormatError);
+
+  return value as TeamId;
+};
+
+/**
+ * 新しいチームの識別子をランダムな UUID から生成します。
+ *
+ * @returns 新しいチームの識別子を返します。
+ */
+TeamId.generate = () => {
+  return TeamId(uuid());
+};
+
+/**
+ * チーム未所属を表す特別な値です。
+ */
+TeamId.NONE = TeamId(NIL_UUID);
+
+/**
+ * チーム未所属かどうかを判定します。
+ *
+ * @param teamId 判定するチームの識別子です。
+ * @returns チーム未所属の場合は true を、そうでない場合は false を返します。
+ */
+TeamId.isNone = (teamId: TeamId): boolean => teamId === TeamId.NONE;
+
+/**
+ * チームに所属しているかどうかを判定します。
+ *
+ * @param teamId 判定するチームの識別子です。
+ * @returns チームに所属している場合は true を、そうでない場合は false を返します。
+ */
+TeamId.isAssigned = (teamId: TeamId): boolean => teamId !== TeamId.NONE;
+
+/**
  * 参加者の再構築に必要なパラメータです。
  */
 export type ReconstructParticipantParams = UnwrapNominalRecord<Participant>;
@@ -195,13 +267,14 @@ Participant.reconstruct = (params: ReconstructParticipantParams): Participant =>
     name: ParticipantName(params.name),
     email: ParticipantEmail(params.email),
     status: ParticipantStatus(params.status),
+    teamId: TeamId(params.teamId),
   });
 };
 
 /**
  * 参加者の入会に必要なパラメータです。
  */
-export type EnrollParticipantParams = Omit<Participant, "id" | "status">;
+export type EnrollParticipantParams = Omit<Participant, "id" | "status" | "teamId">;
 
 /**
  * 参加者を入会させます。
@@ -216,6 +289,7 @@ Participant.enroll = (params: EnrollParticipantParams): [Participant, Participan
     name: params.name,
     email: params.email,
     status: ParticipantStatus.ACTIVE,
+    teamId: TeamId.NONE,
   });
 
   const participantEnrolled = ParticipantEnrolled.create(participant);
@@ -239,6 +313,7 @@ Participant.suspend = (participant: Participant): [Participant, ParticipantSuspe
   const suspended = Participant({
     ...participant,
     status: ParticipantStatus.SUSPENDED,
+    teamId: TeamId.NONE,
   });
 
   const participantSuspended = ParticipantSuspended.create(suspended);
@@ -285,6 +360,7 @@ Participant.withdraw = (participant: Participant): [Participant, ParticipantWith
   const withdrawn = Participant({
     ...participant,
     status: ParticipantStatus.WITHDRAWN,
+    teamId: TeamId.NONE,
   });
 
   const participantWithdrawn = ParticipantWithdrawn.create(withdrawn);

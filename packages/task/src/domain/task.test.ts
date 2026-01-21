@@ -103,6 +103,14 @@ describe("Task", () => {
    */
   const TEST_ASSIGNEE_ID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
+  /**
+   * テストに使用する非所有者のIDです。
+   *
+   * @remarks
+   * - 00000000-0000-0000-0000-000000000000 は NullObject 用に予約されています。
+   */
+  const TEST_NON_OWNER_ASSIGNEE_ID = "a1111111-1111-4111-8111-111111111111";
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -141,7 +149,7 @@ describe("Task", () => {
     test("未着手の課題に着手できる", () => {
       const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
 
-      const [started, event] = Task.startProgress(task);
+      const [started, event] = Task.startProgress(task, task.assigneeId);
 
       expect(started.status).toBe(TaskStatus.IN_PROGRESS);
       expect(event.type).toBe(TaskEventType.PROGRESS_STARTED);
@@ -150,7 +158,14 @@ describe("Task", () => {
     test("未着手でない課題に着手しようとすると DomainError をスローする", () => {
       const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
-      expect(() => Task.startProgress(task)).toThrow(DomainError);
+      expect(() => Task.startProgress(task, task.assigneeId)).toThrow(DomainError);
+    });
+
+    test("課題の所有者でない場合は DomainError をスローする", () => {
+      const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
+      const nonOwnerActorId = AssigneeId(TEST_NON_OWNER_ASSIGNEE_ID);
+
+      expect(() => Task.startProgress(task, nonOwnerActorId)).toThrow(DomainError);
     });
   });
 
@@ -158,7 +173,7 @@ describe("Task", () => {
     test("取組中の課題をレビューに提出できる", () => {
       const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
-      const [submitted, event] = Task.submitForReview(task);
+      const [submitted, event] = Task.submitForReview(task, task.assigneeId);
 
       expect(submitted.status).toBe(TaskStatus.AWAITING_REVIEW);
       expect(event.type).toBe(TaskEventType.SUBMITTED_FOR_REVIEW);
@@ -167,7 +182,14 @@ describe("Task", () => {
     test("取組中でない課題をレビューに提出しようとすると DomainError をスローする", () => {
       const task = createDummyTask({ status: TaskStatus.NOT_STARTED });
 
-      expect(() => Task.submitForReview(task)).toThrow(DomainError);
+      expect(() => Task.submitForReview(task, task.assigneeId)).toThrow(DomainError);
+    });
+
+    test("課題の所有者でない場合は DomainError をスローする", () => {
+      const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
+      const nonOwnerActorId = AssigneeId(TEST_NON_OWNER_ASSIGNEE_ID);
+
+      expect(() => Task.submitForReview(task, nonOwnerActorId)).toThrow(DomainError);
     });
   });
 
@@ -175,7 +197,7 @@ describe("Task", () => {
     test("レビュー待ちの課題に修正を依頼できる", () => {
       const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
 
-      const [changesRequested, event] = Task.requestChanges(task);
+      const [changesRequested, event] = Task.requestChanges(task, task.assigneeId);
 
       expect(changesRequested.status).toBe(TaskStatus.IN_PROGRESS);
       expect(event.type).toBe(TaskEventType.CHANGES_REQUESTED);
@@ -184,7 +206,14 @@ describe("Task", () => {
     test("レビュー待ちでない課題に修正を依頼しようとすると DomainError をスローする", () => {
       const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
-      expect(() => Task.requestChanges(task)).toThrow(DomainError);
+      expect(() => Task.requestChanges(task, task.assigneeId)).toThrow(DomainError);
+    });
+
+    test("課題の所有者でない場合は DomainError をスローする", () => {
+      const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
+      const nonOwnerActorId = AssigneeId(TEST_NON_OWNER_ASSIGNEE_ID);
+
+      expect(() => Task.requestChanges(task, nonOwnerActorId)).toThrow(DomainError);
     });
   });
 
@@ -192,7 +221,7 @@ describe("Task", () => {
     test("レビュー待ちの課題を完了できる", () => {
       const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
 
-      const [completed, event] = Task.complete(task);
+      const [completed, event] = Task.complete(task, task.assigneeId);
 
       expect(completed.status).toBe(TaskStatus.COMPLETED);
       expect(event.type).toBe(TaskEventType.COMPLETED);
@@ -201,13 +230,20 @@ describe("Task", () => {
     test("レビュー待ちでない課題を完了しようとすると DomainError をスローする", () => {
       const task = createDummyTask({ status: TaskStatus.IN_PROGRESS });
 
-      expect(() => Task.complete(task)).toThrow(DomainError);
+      expect(() => Task.complete(task, task.assigneeId)).toThrow(DomainError);
     });
 
     test("完了済みの課題は変更できない", () => {
       const task = createDummyTask({ status: TaskStatus.COMPLETED });
 
-      expect(() => Task.complete(task)).toThrow(DomainError);
+      expect(() => Task.complete(task, task.assigneeId)).toThrow(DomainError);
+    });
+
+    test("課題の所有者でない場合は DomainError をスローする", () => {
+      const task = createDummyTask({ status: TaskStatus.AWAITING_REVIEW });
+      const nonOwnerActorId = AssigneeId(TEST_NON_OWNER_ASSIGNEE_ID);
+
+      expect(() => Task.complete(task, nonOwnerActorId)).toThrow(DomainError);
     });
   });
 
